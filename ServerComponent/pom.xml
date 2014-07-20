@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.huayu.metis.servercomponent</groupId>
+    <artifactId>servercomponent-all</artifactId>
+    <version>0.1.1</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>BatchTask</module>
+        <module>FlumePlugins</module>
+        <module>ApiCallMonitor</module>
+        <module>OnlineUserMonitor</module>
+        <module>OnlineUserPackage</module>
+    </modules>
+
+    <properties>
+        <junit.version>4.10</junit.version>
+        <mockito.version>1.9.5</mockito.version>
+        <deep.clone.version>1.9.0</deep.clone.version>
+        <google.guava.version>13.0</google.guava.version>
+        <gaea.version>0.1.2-SNAPSHOT</gaea.version>
+        <repository.server>192.168.205.4</repository.server>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>nd.hy.releases</id>
+            <name>NetDragon HY Release Repository</name>
+            <url>http://${repository.server}:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nd.hy.snapshots</id>
+            <name>NetDragon HY Snapshot Repository</name>
+            <url>http://${repository.server}:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${google.guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.com.robust-it</groupId>
+            <artifactId>cloning</artifactId>
+            <version>${deep.clone.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
+    </repositories>
+
+</project>

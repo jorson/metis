@@ -1,0 +1,96 @@
+{
+    "jobAgent": "test-agent",
+    "jobScanRollPoling": "10000",
+    "jobCatchRollPoling": "10000",
+    "jobThreadNum": "10",
+    "jobs": [
+        {
+            "jobName": "test-job",
+            "tasks": [
+                {
+                    "taskName": "test-task",
+                    "package": "",
+                    "taskClass": "",
+                    "successBehavior": "",
+                    "failureBehavior": ""
+                },
+                {
+                    "taskName": "demo-task",
+                    "packagePath": "",
+                    "taskClass": "",
+                    "onSuccess": "",
+                    "onFailure": ""
+                }
+            ],
+            "schedules": [
+                {
+                    "name": "test-schedule",
+                    "type": "once",
+                    "executeTime": "2014-05-28 16:15"
+                },
+                {
+                    "name": "demo-schedule",
+                    "type": "repeat",
+                    "startDate": "2014-05-20 16:00",
+                    "stopDate": "2015-05-20 16:00",
+                    "neverEnd": "false",
+                    "dailyFrequency": "once",
+                    "executeTime": "2014-05-28 16:15"
+                },
+                {
+                    "name": "demo-schedule",
+                    "type": "repeat",
+                    "startDate": "2014-05-20 16:00",
+                    "stopDate": "2015-05-20 16:00",
+                    "neverEnd": "false",
+                    "dailyFrequency": "repeat",
+                    "spiltMinute": "10"
+                }
+            ]
+        },
+        {
+            "jobName": "test-job2",
+            "tasks": [
+                {
+                    "taskName": "test-task",
+                    "package": "",
+                    "taskClass": "",
+                    "successBehavior": "",
+                    "failureBehavior": ""
+                },
+                {
+                    "taskName": "demo-task",
+                    "packagePath": "",
+                    "taskClass": "",
+                    "onSuccess": "",
+                    "onFailure": ""
+                }
+            ],
+            "schedules": [
+                {
+                    "name": "test-schedule",
+                    "type": "once",
+                    "executeTime": "2014-05-28 16:15"
+                },
+                {
+                    "name": "demo-schedule",
+                    "type": "repeat",
+                    "startDate": "2014-05-20 16:00",
+                    "stopDate": "2015-05-20 16:00",
+                    "neverEnd": "false",
+                    "dailyFrequency": "once",
+                    "executeTime": "2014-05-28 16:15"
+                },
+                {
+                    "name": "demo-schedule",
+                    "type": "repeat",
+                    "startDate": "2014-05-20 16:00",
+                    "stopDate": "2015-05-20 16:00",
+                    "neverEnd": "false",
+                    "dailyFrequency": "repeat",
+                    "spiltMinute": "10"
+                }
+            ]
+        }
+    ]
+}
