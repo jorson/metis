@@ -8,6 +8,7 @@ public class AddedUserKey extends TotalTrendKey {
 
     public AddedUserKey() {
         super.trendsType.set(1);
+        //这是一个变化
     }
 
     @Override
