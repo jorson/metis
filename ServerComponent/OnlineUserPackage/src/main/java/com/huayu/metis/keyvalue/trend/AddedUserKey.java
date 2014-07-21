@@ -1,4 +1,4 @@
-package com.huayu.metis.keyvalue;
+package com.huayu.metis.keyvalue.trend;
 
 /**
  * 新增用户的Key

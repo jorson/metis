@@ -1,22 +1,17 @@
 package com.huayu.metis.mr;
 
-import com.huayu.metis.entry.FileOffset;
 import com.huayu.metis.entry.RegisterLogEntry;
-import com.huayu.metis.keyvalue.RegisterUserKey;
+import com.huayu.metis.keyvalue.trend.RegisterUserKey;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
@@ -27,9 +22,9 @@ public class RegisterMapReduce {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterMapReduce.class);
 
-    public static class RegisterMapper extends Mapper<LongWritable, RegisterLogEntry, RegisterUserKey, LongWritable> {
+    public static class RegisterMapper extends Mapper<LongWritable, RegisterLogEntry, RegisterUserKey, IntWritable> {
         private RegisterUserKey writableKey = new RegisterUserKey();
-        private LongWritable writableValue = new LongWritable(1);
+        private IntWritable writableValue = new IntWritable(0);
 
         @Override
         protected void map(LongWritable key, RegisterLogEntry value, Context context) throws IOException, InterruptedException {
@@ -44,23 +39,57 @@ public class RegisterMapReduce {
             writableKey.setPeriodType(new IntWritable(1));
             writableKey.setAppId(new IntWritable(value.getAppId()));
             writableKey.setTerminalCode(new IntWritable(value.getTerminalCode()));
+            //设置用户的ID
+            writableValue.set(value.getUserId());
 
             context.write(writableKey, writableValue);
         }
+
+
     }
 
-    public static class RegisterReducer extends Reducer<RegisterUserKey, LongWritable, RegisterUserKey, IntWritable> {
+    public static class RegisterReducer extends Reducer<RegisterUserKey, IntWritable, RegisterUserKey, IntWritable> {
 
         private IntWritable result = new IntWritable();
+        private MultipleOutputs<RegisterUserKey, IntWritable> multipleOutput;
+
+        private final String basePathArgs = "UserBasePath";
 
         @Override
-        protected void reduce(RegisterUserKey key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
-            long sum = 0;
-            for(LongWritable val : values) {
-                sum += val.get();
+        protected void reduce(RegisterUserKey key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            int sum = 0;
+            for(IntWritable val : values) {
+                sum += 1;
+                //将信息输出到特定的文件中
+                multipleOutput.write("register_user", key, val, context.getConfiguration().get("UserBasePath"));
             }
-            result.set((int)sum);
+            result.set(sum);
             context.write(key, result);
+        }
+
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
+            multipleOutput = new MultipleOutputs<RegisterUserKey, IntWritable>(context);
+            super.setup(context);
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            if(multipleOutput != null){
+                multipleOutput.close();
+            }
+            super.cleanup(context);
+        }
+
+        private String generateRegisterFileName(long currentDate, String basePath) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(currentDate);
+
+            String targetPath = String.format("%s/%d-%d-%d/register_user", basePath,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DATE));
+            return targetPath;
         }
     }
 }

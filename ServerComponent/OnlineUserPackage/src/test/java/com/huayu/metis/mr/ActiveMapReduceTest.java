@@ -1,9 +1,7 @@
 package com.huayu.metis.mr;
 
-import com.huayu.metis.entry.RegisterLogEntry;
 import com.huayu.metis.entry.VisitLogEntry;
-import com.huayu.metis.keyvalue.ActiveUserKey;
-import com.huayu.metis.keyvalue.RegisterUserKey;
+import com.huayu.metis.keyvalue.trend.ActiveUserKey;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
@@ -13,8 +11,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 

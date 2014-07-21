@@ -1,4 +1,4 @@
-package com.huayu.metis.keyvalue;
+package com.huayu.metis.keyvalue.trend;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
