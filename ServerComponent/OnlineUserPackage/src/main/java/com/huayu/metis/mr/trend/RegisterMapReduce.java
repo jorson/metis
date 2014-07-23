@@ -1,4 +1,4 @@
-package com.huayu.metis.mr;
+package com.huayu.metis.mr.trend;
 
 import com.huayu.metis.entry.RegisterLogEntry;
 import com.huayu.metis.keyvalue.trend.RegisterUserKey;

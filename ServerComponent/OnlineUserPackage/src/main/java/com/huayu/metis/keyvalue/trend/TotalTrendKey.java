@@ -73,6 +73,7 @@ public abstract class TotalTrendKey implements WritableComparable<TotalTrendKey>
     @Override
     public String toString() {
         return String.format("%d,%d,%d,%d,%d,%d", startDate.get(),
+
                 endDate.get(), periodType.get(), appId.get(), terminalCode.get(),
                 trendsType.get());
     }

@@ -1,4 +1,4 @@
-package com.huayu.metis.mr;
+package com.huayu.metis.mr.trend;
 
 import com.huayu.metis.entry.RegisterLogEntry;
 import com.huayu.metis.entry.VisitLogEntry;
@@ -34,7 +34,9 @@ public class AddedMapReduce {
             //去掉注册日期中的时间部分
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(value.getRegisterTime());
-            GregorianCalendar gCal = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
+            GregorianCalendar gCal = new GregorianCalendar(cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH) + 1,
+                    cal.get(Calendar.DATE));
 
             //设置键中的各个字段信息
             writableKey.setStartDate(new LongWritable(gCal.getTimeInMillis()));

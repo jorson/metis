@@ -2,6 +2,7 @@ package com.huayu.metis.mr;
 
 import com.huayu.metis.entry.VisitLogEntry;
 import com.huayu.metis.keyvalue.trend.ActiveUserKey;
+import com.huayu.metis.mr.trend.ActiveMapReduce;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
