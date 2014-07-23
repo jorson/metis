@@ -1,4 +1,4 @@
-package com.huayu.metis.keyvalue;
+package com.huayu.metis.keyvalue.trend;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -73,6 +73,7 @@ public abstract class TotalTrendKey implements WritableComparable<TotalTrendKey>
     @Override
     public String toString() {
         return String.format("%d,%d,%d,%d,%d,%d", startDate.get(),
+
                 endDate.get(), periodType.get(), appId.get(), terminalCode.get(),
                 trendsType.get());
     }

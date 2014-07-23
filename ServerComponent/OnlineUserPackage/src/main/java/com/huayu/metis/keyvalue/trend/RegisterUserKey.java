@@ -1,19 +1,19 @@
-package com.huayu.metis.keyvalue;
+package com.huayu.metis.keyvalue.trend;
 
 import org.apache.hadoop.io.IntWritable;
 
 /**
  * Created by Administrator on 14-7-11.
  */
-public class ActiveUserKey extends TotalTrendKey {
+public class RegisterUserKey extends TotalTrendKey {
 
-    public ActiveUserKey() {
-        this.trendsType = new IntWritable(2);
+    public RegisterUserKey() {
+        this.trendsType = new IntWritable(0);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof ActiveUserKey) {
+        if(obj instanceof RegisterUserKey) {
             RegisterUserKey that = (RegisterUserKey)obj;
             return this.hashCode() == that.hashCode();
         }

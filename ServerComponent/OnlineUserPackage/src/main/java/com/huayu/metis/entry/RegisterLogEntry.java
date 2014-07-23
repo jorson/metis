@@ -1,13 +1,11 @@
 package com.huayu.metis.entry;
 
-import com.huayu.metis.keyvalue.RegisterUserKey;
 import org.apache.hadoop.io.Text;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

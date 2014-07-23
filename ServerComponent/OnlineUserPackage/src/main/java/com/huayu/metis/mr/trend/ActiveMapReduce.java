@@ -1,10 +1,7 @@
-package com.huayu.metis.mr;
+package com.huayu.metis.mr.trend;
 
-import com.google.inject.internal.cglib.proxy.$Callback;
-import com.huayu.metis.entry.RegisterLogEntry;
 import com.huayu.metis.entry.VisitLogEntry;
-import com.huayu.metis.keyvalue.ActiveUserKey;
-import com.huayu.metis.keyvalue.RegisterUserKey;
+import com.huayu.metis.keyvalue.trend.ActiveUserKey;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;

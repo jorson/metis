@@ -1,19 +1,19 @@
-package com.huayu.metis.keyvalue;
+package com.huayu.metis.keyvalue.trend;
+
+import org.apache.hadoop.io.IntWritable;
 
 /**
- * 新增用户的Key
  * Created by Administrator on 14-7-11.
  */
-public class AddedUserKey extends TotalTrendKey {
+public class ActiveUserKey extends TotalTrendKey {
 
-    public AddedUserKey() {
-        super.trendsType.set(1);
-        //这是一个变化
+    public ActiveUserKey() {
+        this.trendsType = new IntWritable(2);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof AddedUserKey) {
+        if(obj instanceof ActiveUserKey) {
             RegisterUserKey that = (RegisterUserKey)obj;
             return this.hashCode() == that.hashCode();
         }
