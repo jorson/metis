@@ -119,15 +119,30 @@ public class PageUseRateMapReduce {
                 }
             }
             //所有的用户都被集合在一个HashMap中
-            //构建输出结果的Key
-            UseRateKey outputKey = new UseRateKey();
-            outputKey.setAppId(key.getAppId().get());
-            outputKey.setTerminalCode(key.getTerminalCode().get());
-            outputKey.setVisitDate(key.getVisitDate().get());
-
             //循环Map中的对象
-            for(Map.Entry<Integer, Integer> pair : userVisitMap.entrySet()) {
+            for(Map.Entry<Integer, Integer> entry : userVisitMap.entrySet()) {
+                //构建输出结果的Key
+                UseRateKey outputKey = new UseRateKey();
+                outputKey.setAppId(key.getAppId().get());
+                outputKey.setTerminalCode(key.getTerminalCode().get());
+                outputKey.setVisitDate(key.getVisitDate().get());
 
+                int visitTimes = entry.getValue().intValue();
+                if(visitTimes>=1 && visitTimes<=2) {
+                    outputKey.setNormItemKey(100);
+                } else if(visitTimes>=3 && visitTimes<=5){
+                    outputKey.setNormItemKey(101);
+                } else if(visitTimes>=6 && visitTimes<=9){
+                    outputKey.setNormItemKey(102);
+                } else if(visitTimes>=10 && visitTimes<=29){
+                    outputKey.setNormItemKey(103);
+                } else if(visitTimes>=30 && visitTimes<=49){
+                    outputKey.setNormItemKey(104);
+                } else if(visitTimes>=50){
+                    outputKey.setNormItemKey(105);
+                }
+
+                //multiOutput.write("visit_times", outputKey, );
             }
         }
 
