@@ -15,6 +15,7 @@
 
     <properties>
         <hadoop.version>2.2.0</hadoop.version>
+        <mongo.version>2.11.2</mongo.version>
     </properties>
 
     <dependencies>
@@ -37,6 +38,11 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.mrunit</groupId>
