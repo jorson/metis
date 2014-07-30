@@ -24,6 +24,14 @@ public class UserOnlinePackageConfig extends BaseConfig {
     public static final String CONTROL_CATALOG = "user.online.packing.control.catalog";
     //控制数据库的集合名词
     public static final String CONTROL_NAME = "user.online.packing.control.name";
+    //目标数据库驱动
+    public static final String TARGET_DRIVER = "user.online.packing.target.driver";
+    //目标数据库连接字符串
+    public static final String TARGET_CONNECT = "user.online.packing.target.connect";
+    //目标数据库用户
+    public static final String TARGET_USER = "user.online.packing.target.user";
+    //目标数据库密码
+    public static final String TARGET_PASSWORD = "user.online.packing.target.password";
 
     private static boolean hasLoaded = false;
 
@@ -61,6 +69,10 @@ public class UserOnlinePackageConfig extends BaseConfig {
         this.trySet(CONTROL_URL, true, "");
         this.trySet(CONTROL_CATALOG, true, "");
         this.trySet(CONTROL_NAME, true, "");
+        this.trySet(TARGET_DRIVER, true, "");
+        this.trySet(TARGET_CONNECT, true, "");
+        this.trySet(TARGET_USER, true, "");
+        this.trySet(TARGET_PASSWORD, true, "");
 
         hasLoaded = true;
     }

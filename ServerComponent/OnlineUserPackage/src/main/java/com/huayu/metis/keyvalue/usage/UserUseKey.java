@@ -18,14 +18,14 @@ public class UserUseKey implements WritableComparable<UserUseKey> {
     protected LongWritable visitDate;
     protected IntWritable appId;
     protected IntWritable terminalCode;
-    protected IntWritable userId;
+    protected LongWritable userId;
     protected Text pageUrl;
 
     public UserUseKey() {
         visitDate = new LongWritable(0);
         appId = new IntWritable(0);
         terminalCode = new IntWritable(0);
-        userId = new IntWritable(0);
+        userId = new LongWritable(0);
         pageUrl = new Text();
     }
 
@@ -76,7 +76,7 @@ public class UserUseKey implements WritableComparable<UserUseKey> {
         return terminalCode;
     }
 
-    public IntWritable getUserId() {
+    public LongWritable getUserId() {
         return userId;
     }
 }

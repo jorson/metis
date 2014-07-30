@@ -3,7 +3,9 @@ package com.huayu.metis.mr;
 import com.huayu.metis.entry.VisitLogEntry;
 import com.huayu.metis.keyvalue.trend.RegisterUserKey;
 import com.huayu.metis.keyvalue.usage.UserPageVisitKey;
+import com.huayu.metis.keyvalue.usage.UserPageVisitTimes;
 import com.huayu.metis.mr.usage.PageVisitMapReduce;
+import com.huayu.metis.mr.usage.UserPageVisitMapReduce;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
@@ -20,14 +22,14 @@ import java.util.Random;
 public class UserVisitPageMapReduceTest {
 
     private MapReduceDriver<LongWritable, VisitLogEntry,
-            UserPageVisitKey, IntWritable, UserPageVisitKey, IntWritable> mrUserVisitor;
+            UserPageVisitKey, IntWritable, UserPageVisitKey, UserPageVisitTimes> mrUserVisitor;
 
     @Before
     public void setup() {
         mrUserVisitor = new MapReduceDriver<LongWritable, VisitLogEntry, UserPageVisitKey,
-                IntWritable, UserPageVisitKey, IntWritable>();
-        mrUserVisitor.setMapper(new PageVisitMapReduce.UserVisitPageMapper());
-        mrUserVisitor.setReducer(new PageVisitMapReduce.UserVisitPageReducer());
+                IntWritable, UserPageVisitKey, UserPageVisitTimes>();
+        mrUserVisitor.setMapper(new UserPageVisitMapReduce.UserVisitPageMapper());
+        mrUserVisitor.setReducer(new UserPageVisitMapReduce.UserVisitPageReducer());
     }
 
     @Test
@@ -36,9 +38,9 @@ public class UserVisitPageMapReduceTest {
         generateVisitData();
 
         //开始计算
-        List<Pair<UserPageVisitKey, IntWritable>> results = mrUserVisitor.run(true);
+        List<Pair<UserPageVisitKey, UserPageVisitTimes>> results = mrUserVisitor.run(true);
         for(int i=0; i<results.size(); i++){
-            Pair<UserPageVisitKey, IntWritable> pair = results.get(i);
+            Pair<UserPageVisitKey, UserPageVisitTimes> pair = results.get(i);
             System.out.println("Key:" + pair.getFirst().toString() + ", Value:" + pair.getSecond().get());
         }
     }

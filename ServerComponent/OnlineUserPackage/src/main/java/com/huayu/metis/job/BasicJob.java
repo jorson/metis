@@ -6,37 +6,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 
 /**
- * 将每天的文件进行合并的作业
- * Created by Administrator on 14-7-28.
+ * Created by Administrator on 14-7-30.
  */
-public class CombineDailyFileJob {
+public abstract class BasicJob {
 
-    private static Logger logger = LoggerFactory.getLogger(CombineDailyFileJob.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasicJob.class);
 
-    private Mongo mongo;
-    private DB db;
-    private DBCollection collection;
-    private DBCursor cursor;
+    protected Mongo mongo;
+    protected DB db;
+    protected DBCollection collection;
 
-    public CombineDailyFileJob() {
-    }
+    protected static SimpleDateFormat format=new SimpleDateFormat("yyyyMMdd");
 
-    private void loadLastExecuteDate() {
-        String collectionName = UserOnlinePackageConfig.getInstance()
-                .tryGet(UserOnlinePackageConfig.CONTROL_NAME);
-        this.collection = this.db.getCollection(collectionName);
-        this.cursor = this.collection.find();
-        if(this.cursor.hasNext()) {
-            DBObject obj = this.cursor.next();
-            obj.get("last_execute_date");
-        }
-
-    }
-
-    private void initMongo() {
-
+    /**
+     * 初始化MONGO数据库
+     */
+    protected void initMongo() {
         //打开新的Mongo链接
         try {
             MongoClientURI uri =
@@ -49,6 +37,10 @@ public class CombineDailyFileJob {
             if(uri.getUsername() != null) {
                 db.authenticate(uri.getUsername(), uri.getPassword());
             }
+            //初始化Collection对象
+            String collectionName = UserOnlinePackageConfig.getInstance()
+                    .tryGet(UserOnlinePackageConfig.CONTROL_NAME);
+            collection = db.getCollection(collectionName);
         } catch (UnknownHostException e) {
             // Log the error
             logger.error("Unknown host for Mongo DB", e);
@@ -56,4 +48,8 @@ public class CombineDailyFileJob {
             throw new RuntimeException(e);
         }
     }
+
+    public abstract int runJob(String[] args);
+
+    protected abstract void loadJobConfig(String configPath);
 }

@@ -3,16 +3,21 @@ package com.huayu.metis.keyvalue.usage;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * 用户页面访问情况的键
  * Created by Administrator on 14-7-28.
  */
-public class UserPageVisitKey implements WritableComparable<UserPageVisitKey> {
+public class UserPageVisitKey implements WritableComparable<UserPageVisitKey>, DBWritable {
 
     private LongWritable statDate;
     private IntWritable appId;
@@ -77,6 +82,22 @@ public class UserPageVisitKey implements WritableComparable<UserPageVisitKey> {
         return String.format("%d,%d,%d,%d", statDate.get(),
                 appId.get(), terminalCode.get(),
                 userId.get());
+    }
+
+    @Override
+    public void write(PreparedStatement statement) throws SQLException {
+        statement.setDate(1, new Date(this.statDate.get()));
+        statement.setInt(2, this.appId.get());
+        statement.setInt(3, this.terminalCode.get());
+        statement.setLong(4, this.userId.get());
+    }
+
+    @Override
+    public void readFields(ResultSet resultSet) throws SQLException {
+        this.statDate.set(resultSet.getDate("StatisticDate").getTime());
+        this.appId.set(resultSet.getInt("AppId"));
+        this.terminalCode.set(resultSet.getInt("TerminalCode"));
+        this.userId.set(resultSet.getLong("UserId"));
     }
 
     public void setStatDate(long statDate) {

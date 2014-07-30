@@ -42,7 +42,7 @@ public class PageUseRateMapReduce {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(value.getVisitTime());
             GregorianCalendar gCal = new GregorianCalendar(cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH) + 1,
+                    cal.get(Calendar.MONTH),
                     cal.get(Calendar.DATE));
 
             //设置键中的各个字段信息
@@ -88,9 +88,9 @@ public class PageUseRateMapReduce {
             writableKey.setVisitDate(key.getVisitDate().get());
 
             //将输入的Mapper和Key中UserId设置为输出
-            writableValue.setVisitUsers(key.getUserId());
+            writableValue.setVisitUserId(key.getUserId().get());
             //将访问次数设置为输出的Value
-            writableValue.setVisitTimes(value);
+            writableValue.setVisitTimes(value.get());
 
             context.write(writableKey, writableValue);
         }
@@ -106,10 +106,11 @@ public class PageUseRateMapReduce {
                 throws IOException, InterruptedException {
 
             //计算不重复的访问用户数和访问量
-            HashMap<Integer, Integer> userVisitMap = new HashMap<Integer, Integer>(200);
-            int userId = 0, visitTime = 0;
+            HashMap<Long, Integer> userVisitMap = new HashMap<Long, Integer>(200);
+            long userId = 0L;
+            int visitTime = 0;
             for(PageVisitValue val : values) {
-                userId = val.getVisitUsers().get();
+                userId = val.getVisitUserId().get();
                 visitTime = val.getVisitTimes().get();
                 //如果MAP中不存在对应的数据
                 if(!userVisitMap.containsKey(userId)) {
@@ -120,7 +121,7 @@ public class PageUseRateMapReduce {
             }
             //所有的用户都被集合在一个HashMap中
             //循环Map中的对象
-            for(Map.Entry<Integer, Integer> entry : userVisitMap.entrySet()) {
+            for(Map.Entry<Long, Integer> entry : userVisitMap.entrySet()) {
                 //构建输出结果的Key
                 UseRateKey outputKey = new UseRateKey();
                 outputKey.setAppId(key.getAppId().get());
