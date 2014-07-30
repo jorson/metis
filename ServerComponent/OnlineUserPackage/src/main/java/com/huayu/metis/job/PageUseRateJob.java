@@ -9,14 +9,20 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.IOException;
 
 /**
+ * 页面使用情况的JOB
  * Created by Administrator on 14-7-22.
  */
-public class UseRageJob {
+public class PageUseRateJob extends BasicJob {
 
-    public void runJob() throws IOException {
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf);
-
-        MultipleOutputs.addNamedOutput(job, "", TextOutputFormat.class, Text.class, Text.class);
+    @Override
+    public int runJob(String[] args) {
+        return 0;
     }
+
+    @Override
+    protected void loadJobConfig(String configPath) {
+
+    }
+
+
 }

@@ -4,20 +4,26 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by Administrator on 14-7-21.
  */
-public class PageVisitKey implements WritableComparable<PageVisitKey> {
+public class PageVisitKey implements WritableComparable<PageVisitKey>, DBWritable {
 
     protected LongWritable startDate;
     protected LongWritable endDate;
     protected IntWritable appId;
     protected IntWritable terminalCode;
+    protected IntWritable periodType;
     protected Text visitUrl;
 
     public PageVisitKey(){
@@ -25,6 +31,7 @@ public class PageVisitKey implements WritableComparable<PageVisitKey> {
         this.endDate = new LongWritable(0);
         this.appId = new IntWritable(0);
         this.terminalCode = new IntWritable(0);
+        this.periodType = new IntWritable(0);
         this.visitUrl = new Text();
     }
 
@@ -49,6 +56,7 @@ public class PageVisitKey implements WritableComparable<PageVisitKey> {
     public void write(DataOutput dataOutput) throws IOException {
         startDate.write(dataOutput);
         endDate.write(dataOutput);
+        periodType.write(dataOutput);
         appId.write(dataOutput);
         terminalCode.write(dataOutput);
         visitUrl.write(dataOutput);
@@ -58,6 +66,7 @@ public class PageVisitKey implements WritableComparable<PageVisitKey> {
     public void readFields(DataInput dataInput) throws IOException {
         startDate.readFields(dataInput);
         endDate.readFields(dataInput);
+        periodType.readFields(dataInput);
         appId.readFields(dataInput);
         terminalCode.readFields(dataInput);
         visitUrl.readFields(dataInput);
@@ -72,28 +81,60 @@ public class PageVisitKey implements WritableComparable<PageVisitKey> {
 
     @Override
     public String toString() {
-        return String.format("%d,%d,%d,%d,%s", startDate.get(),
-                endDate.get(), appId.get(), terminalCode.get(),
+        return String.format("%d,%d,%d,%d,%d,%s", startDate.get(),
+                endDate.get(), periodType.get(), appId.get(), terminalCode.get(),
                 visitUrl.toString());
     }
 
-    public void setStartDate(LongWritable startDate) {
-        this.startDate = startDate;
+    public void setStartDate(long startDate) {
+        this.startDate.set(startDate);
     }
 
-    public void setEndDate(LongWritable endDate) {
-        this.endDate = endDate;
+    public void setEndDate(long endDate) {
+        this.endDate.set(endDate);
     }
 
-    public void setAppId(IntWritable appId) {
-        this.appId = appId;
+    public void setAppId(int appId) {
+        this.appId.set(appId);
     }
 
-    public void setTerminalCode(IntWritable terminalCode) {
-        this.terminalCode = terminalCode;
+    public void setTerminalCode(int terminalCode) {
+        this.terminalCode.set(terminalCode);
     }
 
     public void setVisitUrl(Text visitUrl) {
         this.visitUrl = visitUrl;
+    }
+
+    public IntWritable getAppId() {
+        return appId;
+    }
+
+    public IntWritable getPeriodType() {
+        return periodType;
+    }
+
+    public void setPeriodType(int periodType) {
+        this.periodType.set(periodType);
+    }
+
+    @Override
+    public void write(PreparedStatement statement) throws SQLException {
+        statement.setDate(1, new Date(this.startDate.get()));
+        statement.setDate(2, new Date(this.endDate.get()));
+        statement.setInt(3, this.periodType.get());
+        statement.setInt(4, this.appId.get());
+        statement.setInt(5, this.terminalCode.get());
+        statement.setString(6, this.visitUrl.toString());
+    }
+
+    @Override
+    public void readFields(ResultSet resultSet) throws SQLException {
+        this.startDate.set(resultSet.getDate("StartDate").getTime());
+        this.endDate.set(resultSet.getDate("EndDate").getTime());
+        this.periodType.set(resultSet.getInt("PeriodType"));
+        this.appId.set(resultSet.getInt("AppId"));
+        this.terminalCode.set(resultSet.getInt("TerminalCode"));
+        this.visitUrl.set(resultSet.getString("PageUrl"));
     }
 }

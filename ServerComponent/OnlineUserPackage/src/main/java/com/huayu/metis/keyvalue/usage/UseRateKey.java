@@ -23,7 +23,7 @@ public class UseRateKey implements WritableComparable<UseRateKey> {
     //访问次数区间的类型
     /**
      *
-     * 按日统计时. 不重复用户数: 1, 访问次数指标: 1-2:100; 3-5:101; 6-9:102; 10-29:103; 30-49:104; 50+:105
+     * 按日统计时, 访问次数指标: 1-2:100; 3-5:101; 6-9:102; 10-29:103; 30-49:104; 50+:105
      */
     protected IntWritable normItemKey;
 

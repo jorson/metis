@@ -1,6 +1,7 @@
 package com.huayu.metis.io;
 
 import com.huayu.metis.entry.RegisterLogEntry;
+import com.huayu.metis.entry.VisitLogEntry;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Administrator on 14-7-16.
@@ -30,9 +32,9 @@ public class SequenceFileCombinerTest {
     @Test
     public void createSplitFile() throws URISyntaxException, IOException {
         Configuration conf = new Configuration();
-        conf.set("fs.default.name", "hdfs://Jorson-Linux:10000");
+        conf.set("fs.default.name", "hdfs://192168-072166:10000");
 
-        URI hdfsPath = new URI("hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16");
+        URI hdfsPath = new URI("hdfs://192168-072166:10000/original/20140727/visit");
         Path path = new Path(hdfsPath);
 
         //先判断文件夹是否存在, 如果不存在, 则先创建文件夹
@@ -42,23 +44,32 @@ public class SequenceFileCombinerTest {
         }
 
         String[] files = new String[] {
-                "hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16/part1.log",
-                "hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16/part2.log",
-                "hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16/part3.log",
-                "hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16/part4.log",
-                "hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16/part5.log",
+                "hdfs://192168-072166:10000/original/20140726/visit/part1.log",
+                "hdfs://192168-072166:10000/original/20140726/visit/part2.log",
+                "hdfs://192168-072166:10000/original/20140726/visit/part3.log",
+                "hdfs://192168-072166:10000/original/20140726/visit/part4.log",
+                "hdfs://192168-072166:10000/original/20140726/visit/part5.log",
         };
         long counter = 0;
         SequenceFile.Writer writer;
+        Integer[] appIds = new Integer[]{1,2,3,4,5,6};
+        Long[] userIds = new Long[] {100011L,100010L,10090L,10008L,10007L,10006L,10005L,10004L,10003L,10002L};
+        Random rnd = new Random();
+
         for(int j=0; j<5; j++) {
             Path partFile = new Path(files[j]);
             writer = SequenceFile.createWriter(conf, SequenceFile.Writer.file(partFile),
                     SequenceFile.Writer.keyClass(LongWritable.class),
                     SequenceFile.Writer.valueClass(Text.class));
 
-            for(int i=0; i<100; i++) {
+            for(int i=0; i<5000; i++) {
                 counter++;
-                Text value = new Text("auc\t10001\t19\t1\t1001\t3264456\t2014-07-17 15:15:15");
+                int order = rnd.nextInt(5);
+                int uOrder = rnd.nextInt(9);
+
+                String orgText = String.format("auc\t%d\t%d\t1001\t3264456\trefer.page\tvisit.page\tvisit.param\t2014-07-17 15:15:15",
+                        userIds[uOrder], appIds[order].intValue());
+                Text value = new Text(orgText);
                 writer.append(new LongWritable(counter), value);
             }
             IOUtils.closeStream(writer);
@@ -121,5 +132,26 @@ public class SequenceFileCombinerTest {
         do{
             System.out.println(String.valueOf(key.get()) + ";" + value.toString());
         }while(reader.next(key, value));
+    }
+
+    @Test
+    public void combineWeekFileTest() throws Exception {
+        Configuration conf = new Configuration();
+        conf.set("fs.default.name", "hdfs://192168-072166:10000");
+
+        URI[] srcFiles = new URI[]{
+                new URI("hdfs://192168-072166:10000/combine/20140725/visit-log.seq"),
+                new URI("hdfs://192168-072166:10000/combine/20140726/visit-log.seq"),
+                new URI("hdfs://192168-072166:10000/combine/20140727/visit-log.seq"),
+                new URI("hdfs://192168-072166:10000/combine/20140728/visit-log.seq"),
+        };
+        URI targetFile = new URI("hdfs://192168-072166:10000/combine/week/201415/visit-log.seq");
+        //先删除掉已经存在的文件
+        FileSystem fs = FileSystem.get(conf);
+        Path targetPath = new Path(targetFile);
+        if(fs.exists(targetPath)) {
+            fs.delete(targetPath, false);
+        }
+        //SequenceFileCombiner.combineFile(conf, new List<URI>(srcFiles, targetFile, VisitLogEntry.class);
     }
 }

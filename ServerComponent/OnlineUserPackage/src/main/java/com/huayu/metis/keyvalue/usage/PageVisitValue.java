@@ -1,6 +1,7 @@
 package com.huayu.metis.keyvalue.usage;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -13,43 +14,43 @@ import java.io.IOException;
 public class PageVisitValue implements Writable {
 
     private IntWritable visitTimes;
-    private IntWritable visitUsers;
+    private LongWritable visitUserId;
 
     public PageVisitValue() {
         visitTimes = new IntWritable(0);
-        visitUsers = new IntWritable(0);
+        visitUserId = new LongWritable(0);
     }
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {
         visitTimes.write(dataOutput);
-        visitUsers.write(dataOutput);
+        visitUserId.write(dataOutput);
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
         visitTimes.readFields(dataInput);
-        visitUsers.readFields(dataInput);
+        visitUserId.readFields(dataInput);
     }
 
     @Override
     public String toString() {
-        return String.format("%d,%d", visitTimes.get(), visitUsers.get());
+        return String.format("%d,%d", visitTimes.get(), visitUserId.get());
     }
 
     public IntWritable getVisitTimes() {
         return visitTimes;
     }
 
-    public void setVisitTimes(IntWritable visitTimes) {
-        this.visitTimes = visitTimes;
+    public void setVisitTimes(int visitTimes) {
+        this.visitTimes.set(visitTimes);
     }
 
-    public IntWritable getVisitUsers() {
-        return visitUsers;
+    public LongWritable getVisitUserId() {
+        return visitUserId;
     }
 
-    public void setVisitUsers(IntWritable visitUsers) {
-        this.visitUsers = visitUsers;
+    public void setVisitUserId(long visitUserId) {
+        this.visitUserId.set(visitUserId);
     }
 }

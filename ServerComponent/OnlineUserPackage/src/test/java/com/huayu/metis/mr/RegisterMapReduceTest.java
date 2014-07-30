@@ -30,8 +30,8 @@ public class RegisterMapReduceTest {
     public void setup() {
         mrRegister = new MapReduceDriver<LongWritable, RegisterLogEntry, RegisterUserKey,
                 LongWritable, RegisterUserKey, IntWritable>();
-        mrRegister.setMapper(new RegisterMapReduce.RegisterMapper());
-        mrRegister.setReducer(new RegisterMapReduce.RegisterReducer());
+        //mrRegister.setMapper(new RegisterMapReduce.RegisterMapper());
+        //mrRegister.setReducer(new RegisterMapReduce.RegisterReducer());
     }
 
     @Test
