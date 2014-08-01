@@ -2,6 +2,7 @@ package com.huayu.metis.mr.usage;
 
 import com.huayu.metis.entry.VisitLogEntry;
 import com.huayu.metis.keyvalue.usage.*;
+import com.huayu.metis.util.CalendarExtend;
 import javafx.util.Pair;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -38,15 +39,36 @@ public class PageUseRateMapReduce {
                 return;
             }
 
+            //从配置中获取处理的类型
+            String periodType = context.getConfiguration().get("custom.period", "none");
+            //如果处理周期没有被设置
+            if(periodType.equalsIgnoreCase("none")) {
+                return;
+            }
+
             //去掉注册日期中的时间部分
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(value.getVisitTime());
             cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 0, 0, 0);
             cal.set(Calendar.MILLISECOND, 0);
 
+            if(periodType.equalsIgnoreCase("day")) {
+                writableKey.setStartDate(cal.getTimeInMillis());
+                writableKey.setEndDate(cal.getTimeInMillis());
+                writableKey.setPeriodType(0);
+
+            } else if (periodType.equalsIgnoreCase("week")) {
+                Long[] startEnd = CalendarExtend.getWeekStartEnd(cal);
+                writableKey.setStartDate(startEnd[0]);
+                writableKey.setEndDate(startEnd[1]);
+                writableKey.setPeriodType(1);
+            } else if(periodType.equalsIgnoreCase("month")) {
+                Long[] startEnd = CalendarExtend.getMonthStartEnd(cal);
+                writableKey.setStartDate(startEnd[0]);
+                writableKey.setEndDate(startEnd[1]);
+                writableKey.setPeriodType(2);
+            }
             //设置键中的各个字段信息
-            writableKey.setStartDate(cal.getTimeInMillis());
-            writableKey.setEndDate(cal.getTimeInMillis());
             writableKey.setAppId(value.getAppId());
             writableKey.setTerminalCode(value.getTerminalCode());
             writableKey.setUserId(value.getUserId());
@@ -134,17 +156,17 @@ public class PageUseRateMapReduce {
             outKey.setTerminalCode(key.getTerminalCode());
 
             if(userVisitTimes >=1 && userVisitTimes <= 2) {
-                outKey.setNormItemKey(100);
+                outKey.setNormItemKey(200);
             } else if(userVisitTimes >=3 && userVisitTimes <= 5) {
-                outKey.setNormItemKey(101);
+                outKey.setNormItemKey(201);
             } else if(userVisitTimes >=6 && userVisitTimes <= 9) {
-                outKey.setNormItemKey(102);
+                outKey.setNormItemKey(202);
             } else if(userVisitTimes >=10 && userVisitTimes <= 29) {
-                outKey.setNormItemKey(103);
-            } else if(userVisitTimes >=30 && userVisitTimes <= 49) {
-                outKey.setNormItemKey(104);
-            } else if(userVisitTimes >=50) {
-                outKey.setNormItemKey(105);
+                outKey.setNormItemKey(203);
+            } else if(userVisitTimes >=30 && userVisitTimes <= 99) {
+                outKey.setNormItemKey(204);
+            } else if(userVisitTimes >=100) {
+                outKey.setNormItemKey(205);
             } else {
                 return null;
             }
@@ -160,17 +182,19 @@ public class PageUseRateMapReduce {
             outKey.setTerminalCode(key.getTerminalCode());
 
             if(userVisitTimes >=1 && userVisitTimes <= 2) {
-                outKey.setNormItemKey(100);
+                outKey.setNormItemKey(300);
             } else if(userVisitTimes >=3 && userVisitTimes <= 5) {
-                outKey.setNormItemKey(101);
+                outKey.setNormItemKey(301);
             } else if(userVisitTimes >=6 && userVisitTimes <= 9) {
-                outKey.setNormItemKey(102);
-            } else if(userVisitTimes >=10 && userVisitTimes <= 29) {
-                outKey.setNormItemKey(103);
-            } else if(userVisitTimes >=30 && userVisitTimes <= 49) {
-                outKey.setNormItemKey(104);
-            } else if(userVisitTimes >=50) {
-                outKey.setNormItemKey(105);
+                outKey.setNormItemKey(302);
+            } else if(userVisitTimes >=10 && userVisitTimes <= 49) {
+                outKey.setNormItemKey(303);
+            } else if(userVisitTimes >=50 && userVisitTimes <= 99) {
+                outKey.setNormItemKey(304);
+            } else if(userVisitTimes >=100 && userVisitTimes <= 199) {
+                outKey.setNormItemKey(305);
+            } else if(userVisitTimes >= 200) {
+                outKey.setNormItemKey(306);
             } else {
                 return null;
             }

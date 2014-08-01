@@ -4,6 +4,7 @@ import com.huayu.metis.entry.VisitLogEntry;
 import com.huayu.metis.keyvalue.usage.PageVisitKey;
 import com.huayu.metis.keyvalue.usage.PageVisitOutputValue;
 import com.huayu.metis.keyvalue.usage.PageVisitValue;
+import com.huayu.metis.util.CalendarExtend;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -38,20 +39,23 @@ public class PageVisitMapReduce {
 
             Calendar inDate = Calendar.getInstance();
             inDate.setFirstDayOfWeek(Calendar.MONDAY);
-
             inDate.setTimeInMillis(value.getVisitTime());
+            inDate.set(inDate.get(Calendar.YEAR), inDate.get(Calendar.MONTH),
+                    inDate.get(Calendar.DATE), 0, 0, 0);
+            inDate.set(Calendar.MILLISECOND, 0);
+
             //设置输出的开始和结束
             if(periodType.equalsIgnoreCase("day")) {
                 writableKey.setStartDate(inDate.getTimeInMillis());
                 writableKey.setEndDate(inDate.getTimeInMillis());
                 writableKey.setPeriodType(0);
             } else if(periodType.equalsIgnoreCase("week")) {
-                Long[] startEnd = getWeekStartEnd(inDate);
+                Long[] startEnd = CalendarExtend.getWeekStartEnd(inDate);
                 writableKey.setStartDate(startEnd[0]);
                 writableKey.setEndDate(startEnd[1]);
                 writableKey.setPeriodType(1);
             } else if(periodType.equalsIgnoreCase("month")) {
-                Long[] startEnd = getMonthStartEnd(inDate);
+                Long[] startEnd = CalendarExtend.getMonthStartEnd(inDate);
                 writableKey.setStartDate(startEnd[0]);
                 writableKey.setEndDate(startEnd[1]);
                 writableKey.setPeriodType(2);
@@ -64,44 +68,6 @@ public class PageVisitMapReduce {
             writableValue.setVisitTimes(1);
 
             context.write(writableKey, writableValue);
-        }
-
-        private Long[] getWeekStartEnd(Calendar in) {
-            Long[] results = new Long[2];
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(in.get(Calendar.YEAR),
-                    in.get(Calendar.MONTH),
-                    in.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-
-            int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-            if(weekDay == Calendar.SUNDAY) {
-                calendar.add(Calendar.DATE, 6);
-            } else {
-                calendar.add(Calendar.DATE, 2 - weekDay);
-            }
-
-            results[0] = calendar.getTimeInMillis();
-            calendar.add(Calendar.DATE, 6);
-            results[1] = calendar.getTimeInMillis();
-            return  results;
-        }
-
-        private Long[] getMonthStartEnd(Calendar in) {
-            Long[] results = new Long[2];
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(in.get(Calendar.YEAR),
-                    in.get(Calendar.MONTH),
-                    in.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-
-            calendar.set(Calendar.DATE, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
-            results[0] = calendar.getTimeInMillis();
-
-            calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-            results[1] = calendar.getTimeInMillis();
-
-            return results;
         }
     }
 

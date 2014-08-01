@@ -182,7 +182,7 @@ public class PageVisitJob extends BasicJob {
     }
 
     //获取最后执行的日期
-    public void loadLastExecuteDate(String key) {
+    private void loadLastExecuteDate(String key) {
         lastExecuteObj = collection.findOne(new BasicDBObject(JOB_TYPE_KEY, key));
         if(lastExecuteObj != null) {
             lastExecuteDate = lastExecuteObj.get(EXECUTE_DATE_KEY).toString();
@@ -190,7 +190,7 @@ public class PageVisitJob extends BasicJob {
     }
 
     //写入最后执行的时间, 如果存在就更新, 不存在就添加
-    public void writeLastExecuteDate(String key, String lastExecuteDate) {
+    private void writeLastExecuteDate(String key, String lastExecuteDate) {
         if(lastExecuteObj != null) {
             DBObject condition = new BasicDBObject();
             condition.put(JOB_TYPE_KEY, key);

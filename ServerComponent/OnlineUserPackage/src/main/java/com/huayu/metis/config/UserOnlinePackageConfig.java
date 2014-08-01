@@ -16,6 +16,8 @@ public class UserOnlinePackageConfig extends BaseConfig {
     public static final String ORIGINAL_PATH = "user.online.packing.original.path";
     //合并文件的路径
     public static final String COMBINE_PATH = "user.online.packing.combine.path";
+    //临时文件的路径
+    public static final String TEMP_PATH = "user.online.packing.temp.path";
     //文件合并后是否删除原始文件
     public static final String DELETE_ORIGINAL = "user.online.packing.delete.original";
     //控制数据库的URL
@@ -65,6 +67,7 @@ public class UserOnlinePackageConfig extends BaseConfig {
         //添加配置
         this.trySet(ORIGINAL_PATH, true, "");
         this.trySet(COMBINE_PATH, true, "");
+        this.trySet(TEMP_PATH, true, "");
         this.trySet(DELETE_ORIGINAL, false, "true");
         this.trySet(CONTROL_URL, true, "");
         this.trySet(CONTROL_CATALOG, true, "");

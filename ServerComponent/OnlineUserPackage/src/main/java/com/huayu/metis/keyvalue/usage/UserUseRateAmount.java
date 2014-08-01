@@ -19,11 +19,11 @@ public class UserUseRateAmount extends IntWritable implements DBWritable {
 
     @Override
     public void write(PreparedStatement statement) throws SQLException {
-        statement.setLong(5, this.get());
+        statement.setLong(7, this.get());
     }
 
     @Override
     public void readFields(ResultSet resultSet) throws SQLException {
-        this.set(resultSet.getInt("Visits"));
+        this.set(resultSet.getInt("TrendsValue"));
     }
 }

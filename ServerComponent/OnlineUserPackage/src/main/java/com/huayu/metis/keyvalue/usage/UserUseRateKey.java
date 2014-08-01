@@ -3,15 +3,20 @@ package com.huayu.metis.keyvalue.usage;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by jorson on 14-7-30.
  */
-public class UserUseRateKey implements WritableComparable<UserUseRateKey> {
+public class UserUseRateKey implements WritableComparable<UserUseRateKey>, DBWritable {
 
     protected LongWritable startDate;
     protected LongWritable endDate;
@@ -51,24 +56,14 @@ public class UserUseRateKey implements WritableComparable<UserUseRateKey> {
 
     }
 
-    public LongWritable getStartDate() {
-        return startDate;
-    }
 
     public void setStartDate(LongWritable startDate) {
         this.startDate = startDate;
     }
 
-    public LongWritable getEndDate() {
-        return endDate;
-    }
 
     public void setEndDate(LongWritable endDate) {
         this.endDate = endDate;
-    }
-
-    public IntWritable getPeriodType() {
-        return periodType;
     }
 
     public void setPeriodType(IntWritable periodType) {
@@ -83,19 +78,32 @@ public class UserUseRateKey implements WritableComparable<UserUseRateKey> {
         this.appId = appId;
     }
 
-    public IntWritable getTerminalCode() {
-        return terminalCode;
-    }
 
     public void setTerminalCode(IntWritable terminalCode) {
         this.terminalCode = terminalCode;
     }
 
-    public IntWritable getNormItemKey() {
-        return normItemKey;
-    }
-
     public void setNormItemKey(int normItemKey) {
         this.normItemKey.set(normItemKey);
+    }
+
+    @Override
+    public void write(PreparedStatement statement) throws SQLException {
+        statement.setDate(1, new Date(this.startDate.get()));
+        statement.setDate(2, new Date(this.endDate.get()));
+        statement.setInt(3, this.periodType.get());
+        statement.setInt(4, this.appId.get());
+        statement.setInt(5, this.terminalCode.get());
+        statement.setInt(6, this.normItemKey.get());
+    }
+
+    @Override
+    public void readFields(ResultSet resultSet) throws SQLException {
+        this.startDate.set(resultSet.getDate("StartDate").getTime());
+        this.endDate.set(resultSet.getDate("EndDate").getTime());
+        this.periodType.set(resultSet.getInt("PeriodType"));
+        this.appId.set(resultSet.getInt("AppId"));
+        this.terminalCode.set(resultSet.getInt("TerminalCode"));
+        this.normItemKey.set(resultSet.getInt("PageNum"));
     }
 }
