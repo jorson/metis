@@ -16,6 +16,7 @@
         <module>OnlineUserMonitor</module>
         <module>OnlineUserPackage</module>
         <module>StormIntegratePlugs</module>
+        <module>SysLogMonitor</module>
     </modules>
 
     <properties>
