@@ -102,7 +102,7 @@
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-mapreduce-client-shuffle:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-yarn-server-nodemanager:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:2.11.2" level="project" />
-    <orderEntry type="library" exported="" name="Maven: mysql:mysql-connector-java:5.1.30" level="project" />
+    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.30" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.mrunit:mrunit:hadoop2:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
     <orderEntry type="library" name="Maven: uk.com.robust-it:cloning:1.9.0" level="project" />

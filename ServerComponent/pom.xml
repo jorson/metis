@@ -15,6 +15,7 @@
         <module>ApiCallMonitor</module>
         <module>OnlineUserMonitor</module>
         <module>OnlineUserPackage</module>
+        <module>StormIntegratePlugs</module>
     </modules>
 
     <properties>
