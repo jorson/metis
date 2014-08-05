@@ -17,7 +17,7 @@
         <storm.version>0.9.0.1</storm.version>
         <mysql.version>5.1.30</mysql.version>
         <kafka.version>0.8.1</kafka.version>
-        <jedis.version>2.5.1</jedis.version>
+        <jedis.version>2.1.0</jedis.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

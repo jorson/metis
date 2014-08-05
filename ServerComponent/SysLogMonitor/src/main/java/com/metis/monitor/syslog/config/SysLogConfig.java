@@ -38,20 +38,32 @@ public class SysLogConfig {
     public static final String CACHE_PORT = "metis.syslog.cache.port";
     public static final String CACHE_CATALOG = "metis.syslog.cache.catalog";
 
-    private String filePath;
     private Properties properties;
     private final Config config;
+    private static boolean hasLoaded = false;
 
-    public SysLogConfig(String configFilePath) {
+    private static SysLogConfig sysLogConfig;
+
+    public static SysLogConfig getInstance() {
+        if(sysLogConfig == null) {
+            sysLogConfig = new SysLogConfig();
+        }
+        return sysLogConfig;
+    }
+
+    public SysLogConfig() {
         this.properties = new Properties();
-        this.filePath = configFilePath;
         this.config = new Config();
     }
 
-    public Config build() throws Exception {
-        File file = new File(filePath);
+    public Config loadConfig(String configFilePath) throws Exception {
+        if(hasLoaded) {
+            return this.config;
+        }
+
+        File file = new File(configFilePath);
         if(!file.exists() || !file.isFile()) {
-            throw new IOException("config file " + filePath + " not exists or not file");
+            throw new IOException("config file " + configFilePath + " not exists or not file");
         }
 
         InputStream is = new FileInputStream(file);
@@ -110,6 +122,59 @@ public class SysLogConfig {
             this.config.setDebug(true);
         }
 
+        hasLoaded = true;
         return this.config;
+    }
+
+    public String tryGet(String key) {
+        Object obj = this.config.get(key);
+        if(obj == null) {
+            return "";
+        }
+        return obj.toString();
+    }
+
+    public String tryGet(String key, String defaultValue) {
+        Object obj = this.config.get(key);
+        if(obj == null) {
+            return defaultValue;
+        }
+        return obj.toString();
+    }
+
+    public long tryGetLong(String key, long defaultValue) {
+        Object obj = this.config.get(key);
+        if(obj == null) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(obj.toString());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public int tryGetInt(String key, int defaultValue) {
+        Object obj = this.config.get(key);
+        if(obj == null) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(obj.toString());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public boolean tryGetBoolean(String key, boolean defaultValue) {
+        Object obj = this.config.get(key);
+        if(obj == null) {
+            return defaultValue;
+        }
+        try {
+            return Boolean.parseBoolean(obj.toString());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }
