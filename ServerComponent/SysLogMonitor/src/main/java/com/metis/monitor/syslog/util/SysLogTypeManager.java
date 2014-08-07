@@ -22,7 +22,6 @@ public class SysLogTypeManager {
     private SysLogTypeMissingHandler missingHandler;
 
     private RedisClient redisClient;
-    private Connection connection;
 
     public static SysLogTypeManager getInstance(SysLogTypeMissingHandler missingHandler) {
         synchronized (SysLogTypeManager.class) {
@@ -42,38 +41,23 @@ public class SysLogTypeManager {
 
     private void initCache() {
         String host = SysLogConfig.getInstance().tryGet(SysLogConfig.CACHE_HOST);
-        int port = SysLogConfig.getInstance().tryGetInt(SysLogConfig.CACHE_PORT, 6378);
+        int port = SysLogConfig.getInstance().tryGetInt(SysLogConfig.CACHE_PORT, 6379);
         int catalog = SysLogConfig.getInstance().tryGetInt(SysLogConfig.CACHE_CATALOG, 1);
         redisClient = RedisClient.getInstance(host, port, catalog);
     }
 
-    private void initSourceDb() {
-        String driver = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_DRIVER);
-        String url = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_URL);
-        String user = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_USER);
-        String password = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_PASSWORD);
-
-        try{
-            Class.forName(driver);
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (Exception e) {
-            if(logger.isErrorEnabled()) {
-                logger.error("Connect MySQL error", e);
-            }
-        }
-    }
-
-    public SysLogType get(String key) {
+    public Integer get(SysLogType entry) {
         String result = null;
         synchronized (SysLogTypeManager.class) {
-            result = redisClient.get(key);
-            if("null".equalsIgnoreCase(result)) {
-                SysLogType item = missingHandler.handle(key);
-                if(item == null) {
-                    synchronized (SysLogTypeManager.class) {
-
-                    }
+            result = redisClient.get(entry.getFeatureCode());
+            if(result == null) {
+                SysLogType item = missingHandler.handle(entry);
+                synchronized (SysLogTypeManager.class) {
+                    redisClient.set(item.getFeatureCode(), String.valueOf(item.getLogId()));
                 }
+                return item.getLogId();
+            } else {
+                return Integer.parseInt(result);
             }
         }
     }

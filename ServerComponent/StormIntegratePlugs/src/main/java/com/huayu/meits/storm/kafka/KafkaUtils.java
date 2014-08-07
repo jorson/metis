@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.huayu.meits.storm.kafka;
 
 import backtype.storm.metric.api.IMetric;
@@ -21,7 +38,9 @@ import com.huayu.meits.storm.kafka.trident.ZkBrokerReader;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.*;
 
 
@@ -42,7 +61,7 @@ public class KafkaUtils {
 
     public static long getOffset(SimpleConsumer consumer, String topic, int partition, KafkaConfig config) {
         long startOffsetTime = kafka.api.OffsetRequest.LatestTime();
-        if (config.forceFromStart) {
+        if ( config.forceFromStart ) {
             startOffsetTime = config.startOffsetTime;
         }
         return getOffset(consumer, topic, partition, startOffsetTime);
@@ -94,9 +113,9 @@ public class KafkaUtils {
                             LOG.warn("partitionToOffset contains partition not found in _connections. Stale partition data?");
                             return null;
                         }
-                        long earliestTimeOffset = getOffset(consumer, _topic, partition.partition, kafka.api.OffsetRequest.EarliestTime());
                         long latestTimeOffset = getOffset(consumer, _topic, partition.partition, kafka.api.OffsetRequest.LatestTime());
-                        if (earliestTimeOffset == 0 || latestTimeOffset == 0) {
+                        long earliestTimeOffset = getOffset(consumer, _topic, partition.partition, kafka.api.OffsetRequest.EarliestTime());
+                        if (latestTimeOffset == 0 || earliestTimeOffset == 0) {
                             LOG.warn("No data found in Kafka Partition " + partition.getId());
                             return null;
                         }
@@ -143,12 +162,17 @@ public class KafkaUtils {
         for (int errors = 0; errors < 2 && msgs == null; errors++) {
             FetchRequestBuilder builder = new FetchRequestBuilder();
             FetchRequest fetchRequest = builder.addFetch(topic, partitionId, offset, config.fetchSizeBytes).
-                    clientId(config.clientId).build();
+                    clientId(config.clientId).maxWait(config.fetchMaxWait).build();
             FetchResponse fetchResponse;
             try {
                 fetchResponse = consumer.fetch(fetchRequest);
             } catch (Exception e) {
-                if (e instanceof ConnectException) {
+                if (e instanceof ConnectException ||
+                        e instanceof SocketTimeoutException ||
+                        e instanceof IOException ||
+                        e instanceof UnresolvedAddressException
+                        ) {
+                    LOG.warn("Network error when fetching messages:", e);
                     throw new FailedFetchException(e);
                 } else {
                     throw new RuntimeException(e);

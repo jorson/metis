@@ -1,5 +1,6 @@
 package com.metis.monitor.syslog.entry;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -18,6 +19,11 @@ public class SysLogType {
     private Integer appId = 0;
     private String featureCode = null;
     private Date recentDate = null;
+
+    public void generateFeatureCode() {
+        this.featureCode = DigestUtils.md5Hex(
+                String.format("%d-%s-%s", this.logLevel, this.logMessage, this.callStack));
+    }
 
     public Integer getLogId() {
         return logId;

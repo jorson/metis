@@ -1,10 +1,26 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.huayu.meits.storm.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.huayu.meits.storm.kafka.trident.GlobalPartitionInformation;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.huayu.meits.storm.kafka.KafkaUtils.taskId;
@@ -25,11 +41,8 @@ public class ZkCoordinator implements PartitionCoordinator {
     ZkState _state;
     Map _stormConf;
 
-    public ZkCoordinator(DynamicPartitionConnections connections, Map stormConf,
-                         SpoutConfig spoutConfig, ZkState state, int taskIndex, int totalTasks,
-                         String topologyInstanceId) throws IOException {
-        this(connections, stormConf, spoutConfig, state, taskIndex, totalTasks,
-                topologyInstanceId, buildReader(stormConf, spoutConfig));
+    public ZkCoordinator(DynamicPartitionConnections connections, Map stormConf, SpoutConfig spoutConfig, ZkState state, int taskIndex, int totalTasks, String topologyInstanceId) {
+        this(connections, stormConf, spoutConfig, state, taskIndex, totalTasks, topologyInstanceId, buildReader(stormConf, spoutConfig));
     }
 
     public ZkCoordinator(DynamicPartitionConnections connections, Map stormConf, SpoutConfig spoutConfig, ZkState state, int taskIndex, int totalTasks, String topologyInstanceId, DynamicBrokersReader reader) {
@@ -45,7 +58,7 @@ public class ZkCoordinator implements PartitionCoordinator {
         _reader = reader;
     }
 
-    private static DynamicBrokersReader buildReader(Map stormConf, SpoutConfig spoutConfig) throws IOException {
+    private static DynamicBrokersReader buildReader(Map stormConf, SpoutConfig spoutConfig) {
         ZkHosts hosts = (ZkHosts) spoutConfig.hosts;
         return new DynamicBrokersReader(stormConf, hosts.brokerZkStr, hosts.brokerZkPath, spoutConfig.topic);
     }
@@ -59,7 +72,8 @@ public class ZkCoordinator implements PartitionCoordinator {
         return _cachedList;
     }
 
-    void refresh() {
+    @Override
+    public void refresh() {
         try {
             LOG.info(taskId(_taskIndex, _totalTasks) + "Refreshing partition manager connections");
             GlobalPartitionInformation brokerInfo = _reader.getBrokerInfo();

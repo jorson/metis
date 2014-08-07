@@ -112,9 +112,9 @@ public class SysLogConfig {
         this.config.put(KAFKA_TOPIC, kafkaTopic);
         this.config.put(MIN_INTERVAL_MS, minIntervalMs);
 
-        this.config.put(CACHE_HOST, zookeeperHosts);
-        this.config.put(CACHE_PORT, kafkaTopic);
-        this.config.put(CACHE_CATALOG, minIntervalMs);
+        this.config.put(CACHE_HOST, cacheHost);
+        this.config.put(CACHE_PORT, cachePort);
+        this.config.put(CACHE_CATALOG, cacheCatalog);
 
         /*其他的设置*/
         String debugMode = properties.getProperty(DEBUG_MODE, "false");

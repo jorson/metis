@@ -5,7 +5,6 @@ package com.huayu.metis.storm;
  */
 public class ConstansValues {
 
-
     public static final String API_MONITOR_GROUPING_TIMESTAMP_FILED = "groupingTimeStamp";
     public static final String API_MONITOR_GROUPING_KEY_FILED = "groupingKey";
     public static final String API_MONITOR_GROUPING_VALUE_FILED = "groupingValues";

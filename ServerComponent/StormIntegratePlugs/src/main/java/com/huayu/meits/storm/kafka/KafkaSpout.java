@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.huayu.meits.storm.kafka;
 
 import backtype.storm.Config;
@@ -11,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.huayu.meits.storm.kafka.PartitionManager.KafkaMessageId;
 
-import java.io.IOException;
 import java.util.*;
 
 // TODO: need to add blacklisting
@@ -67,6 +83,7 @@ public class KafkaSpout extends BaseRichSpout {
         stateConf.put(Config.TRANSACTIONAL_ZOOKEEPER_PORT, zkPort);
         stateConf.put(Config.TRANSACTIONAL_ZOOKEEPER_ROOT, _spoutConfig.zkRoot);
         _state = new ZkState(stateConf);
+
         _connections = new DynamicPartitionConnections(_spoutConfig, KafkaUtils.makeBrokerReader(conf, _spoutConfig));
 
         // using TransactionalState like this is a hack
@@ -74,11 +91,7 @@ public class KafkaSpout extends BaseRichSpout {
         if (_spoutConfig.hosts instanceof StaticHosts) {
             _coordinator = new StaticCoordinator(_connections, conf, _spoutConfig, _state, context.getThisTaskIndex(), totalTasks, _uuid);
         } else {
-            try {
-                _coordinator = new ZkCoordinator(_connections, conf, _spoutConfig, _state, context.getThisTaskIndex(), totalTasks, _uuid);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            _coordinator = new ZkCoordinator(_connections, conf, _spoutConfig, _state, context.getThisTaskIndex(), totalTasks, _uuid);
         }
 
         context.registerMetric("kafkaOffset", new IMetric() {
@@ -122,14 +135,19 @@ public class KafkaSpout extends BaseRichSpout {
         List<PartitionManager> managers = _coordinator.getMyManagedPartitions();
         for (int i = 0; i < managers.size(); i++) {
 
-            // in case the number of managers decreased
-            _currPartitionIndex = _currPartitionIndex % managers.size();
-            EmitState state = managers.get(_currPartitionIndex).next(_collector);
-            if (state != EmitState.EMITTED_MORE_LEFT) {
-                _currPartitionIndex = (_currPartitionIndex + 1) % managers.size();
-            }
-            if (state != EmitState.NO_EMITTED) {
-                break;
+            try {
+                // in case the number of managers decreased
+                _currPartitionIndex = _currPartitionIndex % managers.size();
+                EmitState state = managers.get(_currPartitionIndex).next(_collector);
+                if (state != EmitState.EMITTED_MORE_LEFT) {
+                    _currPartitionIndex = (_currPartitionIndex + 1) % managers.size();
+                }
+                if (state != EmitState.NO_EMITTED) {
+                    break;
+                }
+            } catch (FailedFetchException e) {
+                LOG.warn("Fetch failed", e);
+                _coordinator.refresh();
             }
         }
 
