@@ -35,7 +35,7 @@ public class KafkaWriteTest {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     @Test
-    public void writeToKafka() {
+    public void writeToKafka() throws InterruptedException {
         long events = 300;
         Properties props = new Properties();
         props.put("metadata.broker.list", "192168-072166:9091,192168-072166:9092,192168-072166:9093");
@@ -50,9 +50,13 @@ public class KafkaWriteTest {
         for(long event = 0; event < events; event++){
             String message = buildOriginalSysLog();
             KeyedMessage<String, String> data = new KeyedMessage<String, String>("sys_log", message);
-            dataList.add(data);
+            producer.send(data);
+            //dataList.add(data);
+            //每发送一笔记录停止一下
+            Thread.sleep(500);
+            System.out.println("Write Event:" + event);
         }
-        producer.send(dataList);
+        //producer.send(dataList);
         System.out.println("Write Over!");
         producer.close();
 

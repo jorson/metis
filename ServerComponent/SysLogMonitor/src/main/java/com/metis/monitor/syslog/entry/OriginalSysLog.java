@@ -2,13 +2,16 @@ package com.metis.monitor.syslog.entry;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 原始日志的实体类
  * Created by Administrator on 14-8-6.
  */
-public class OriginalSysLog {
+public class OriginalSysLog implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     private Integer appId;
     private Integer logLevel;

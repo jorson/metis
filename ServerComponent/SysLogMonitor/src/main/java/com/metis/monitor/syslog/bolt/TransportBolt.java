@@ -48,6 +48,7 @@ public class TransportBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         //获取来自KafkaSpout的原始数据
         //获取原始日志对象
+        Integer partitionKey = tuple.getIntegerByField(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD);
         Object originalObj = tuple.getValueByField(ConstVariables.SYS_LOG_ORIGINAL_VALUE_FILED);
         //如果不是原始日志类型
         if(!(originalObj instanceof OriginalSysLog))
@@ -68,13 +69,16 @@ public class TransportBolt extends BaseRichBolt {
         //构建SysLogDetail对象,并推到下一个处理单元
         SysLogDetail detail = new SysLogDetail(typeId, sysLog.getAppId(), sysLog.getLogDate());
         //推出数据
-        this.collector.emit(new Values(detail));
+        this.collector.emit(new Values(partitionKey, detail));
         //确认应答
         this.collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(ConstVariables.SYS_LOG_DETAIL_VALUE_FILED));
+        outputFieldsDeclarer.declare(
+                new Fields(
+                        ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD,
+                        ConstVariables.SYS_LOG_DETAIL_VALUE_FILED));
     }
 }

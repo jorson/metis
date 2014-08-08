@@ -1,12 +1,15 @@
 package com.metis.monitor.syslog.entry;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
  * Created by Administrator on 14-8-6.
  */
-public class SysLogMiniCycle {
+public class SysLogMiniCycle implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     private Date statDate;
     private Integer appId = 0;

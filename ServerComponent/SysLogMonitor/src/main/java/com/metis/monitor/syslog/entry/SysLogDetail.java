@@ -1,5 +1,6 @@
 package com.metis.monitor.syslog.entry;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -7,7 +8,9 @@ import java.util.Date;
  * 系统日志的详细信息实体
  * Created by Administrator on 14-8-6.
  */
-public class SysLogDetail {
+public class SysLogDetail implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     private Integer logTypeId;
     private Integer appId;

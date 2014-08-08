@@ -46,8 +46,12 @@ public class MockTupleHelper {
 
     public static Tuple mockSysLogDetailTuple() {
         Tuple tuple = mock(Tuple.class);
+        Object detailObj = getRandomSysLogDetail();
+        Integer appId = ((SysLogDetail)detailObj).getAppId();
         when(tuple.getValueByField(ConstVariables.SYS_LOG_DETAIL_VALUE_FILED))
-                .thenReturn(getRandomSysLogDetail());
+                .thenReturn(detailObj);
+        when(tuple.getIntegerByField(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD))
+                .thenReturn(appId);
         return tuple;
     }
 

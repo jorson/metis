@@ -108,7 +108,7 @@ public class BatchingBolt implements IRichBolt {
                 }
                 //提交数据
                 statement.executeBatch();
-                connection.commit();;
+                connection.commit();
                 connection.setAutoCommit(true);
                 //推进时间
                 this.currentTimestamp += this.intervalMs;

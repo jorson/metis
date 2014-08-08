@@ -6,6 +6,7 @@ package com.metis.monitor.syslog.util;
  */
 public class ConstVariables {
 
+    public static final String SYS_LOG_ORIGINAL_PARTITION_FIELD = "sys_log_original_partition_field";
     public static final String SYS_LOG_ORIGINAL_VALUE_FILED = "sys_log_original_value";
     public static final String SYS_LOG_DETAIL_VALUE_FILED = "sys_log_detail_value";
 }

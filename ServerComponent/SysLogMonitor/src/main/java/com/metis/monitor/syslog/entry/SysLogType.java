@@ -3,12 +3,15 @@ package com.metis.monitor.syslog.entry;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Administrator on 14-8-5.
  */
-public class SysLogType {
+public class SysLogType implements Serializable {
+
+    private static final long serialVersionUID = -1L;
 
     private Integer logId = 0;
     private Integer logTypeId = 0;
