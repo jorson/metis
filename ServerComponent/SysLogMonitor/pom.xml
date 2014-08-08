@@ -7,8 +7,6 @@
         <groupId>com.huayu.metis.servercomponent</groupId>
         <version>0.1.1</version>
 
-
-
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,6 +23,24 @@
         <zookeeper.version>3.4.5</zookeeper.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.metis.monitor.syslog.topology.RemoteTopology</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
