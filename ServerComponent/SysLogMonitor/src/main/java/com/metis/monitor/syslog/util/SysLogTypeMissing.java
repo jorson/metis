@@ -13,11 +13,11 @@ import java.util.UUID;
  */
 public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHandler {
 
-    private Connection connection;
+/*    private Connection connection;*/
     private static final Logger logger = LoggerFactory.getLogger(SysLogTypeMissing.class);
 
     public SysLogTypeMissing() {
-        String driver = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_DRIVER);
+/*        String driver = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_DRIVER);
         String url = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_URL);
         String user = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_USER);
         String password = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_PASSWORD);
@@ -27,7 +27,7 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
             connection = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override
@@ -56,6 +56,13 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
         PreparedStatement statement = null;
         SysLogType logType = null;
         try {
+            Connection connection = C3P0Utils.getInstance().getConnection();
+            if(connection == null) {
+                if(logger.isErrorEnabled()) {
+                    logger.error("BATCHING_BOLT", "Get Connection from C3P0Utils IS NULL");
+                }
+                return logType;
+            }
             statement = connection.prepareStatement(
                     "Select Id, FeatureCode From syslog_log_type Where FeatureCode=?");
             statement.setString(1, featureCode);
@@ -85,6 +92,14 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
     private void addLogType(SysLogType entry) {
         PreparedStatement statement = null;
         try {
+            Connection connection = C3P0Utils.getInstance().getConnection();
+            if(connection == null) {
+                if(logger.isErrorEnabled()) {
+                    logger.error("BATCHING_BOLT", "Get Connection from C3P0Utils IS NULL");
+                }
+                return;
+            }
+
             statement = connection.prepareStatement("Insert Into syslog_log_type(TypeCode, LogLevel, " +
                     "LogMessage, CallStack, AppId, RecentTime, FeatureCode) Values (?,?,?,?,?,?,?) " +
                     "On DUPLICATE Key Update RecentTime=CURRENT_TIMESTAMP()",
@@ -105,15 +120,6 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
         } catch (SQLException ex) {
             if(logger.isErrorEnabled()) {
                 logger.error("put update failed", ex);
-            }
-        }
-        finally {
-            if(statement != null) {
-                try{
-                    statement.close();
-                } catch (Exception ex) {
-
-                }
             }
         }
     }

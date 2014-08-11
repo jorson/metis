@@ -8,6 +8,7 @@ import backtype.storm.tuple.Tuple;
 import com.metis.monitor.syslog.config.SysLogConfig;
 import com.metis.monitor.syslog.entry.SysLogDetail;
 import com.metis.monitor.syslog.entry.SysLogMiniCycle;
+import com.metis.monitor.syslog.util.C3P0Utils;
 import com.metis.monitor.syslog.util.ConstVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class BatchingBolt implements IRichBolt {
     private Queue<Tuple> tupleQueue = new ConcurrentLinkedQueue<Tuple>();
     private Queue<SysLogDetail> logDetailQueue = new ConcurrentLinkedQueue<SysLogDetail>();
     private Long currentTimestamp;
-    private Connection connection;
+/*    private Connection connection;*/
     private SimpleDateFormat detailFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
 
@@ -41,7 +42,7 @@ public class BatchingBolt implements IRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         this.intervalMs = SysLogConfig.getInstance().tryGetInt(SysLogConfig.MIN_INTERVAL_MS, 60000);
-        //设置Connection
+/*        //设置Connection
         String driver = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_DRIVER);
         String url = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_URL);
         String user = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_USER);
@@ -57,7 +58,7 @@ public class BatchingBolt implements IRichBolt {
             if(logger.isErrorEnabled()) {
                 logger.error("BATCHING_BOLT", e);
             }
-        }
+        }*/
         //最后设置
         Calendar calendar = Calendar.getInstance();
         //将毫秒和秒都设置为0
@@ -84,8 +85,15 @@ public class BatchingBolt implements IRichBolt {
                 currentTime >= this.intervalMs + this.currentTimestamp) {
             System.out.println("Start Process:" + logTime);
             try{
-                Statement statement = connection.createStatement();
+                Connection connection = C3P0Utils.getInstance().getConnection();
+                if(connection == null) {
+                    if(logger.isErrorEnabled()) {
+                        logger.error("BATCHING_BOLT", "Get Connection from C3P0Utils IS NULL");
+                    }
+                    return;
+                }
                 connection.setAutoCommit(false);
+                Statement statement = connection.createStatement();
                 SysLogDetail detail = null;
                 Tuple tup = null;
                 Map<Integer, SysLogMiniCycle> miniCycleList = new HashMap<Integer, SysLogMiniCycle>();
@@ -121,16 +129,6 @@ public class BatchingBolt implements IRichBolt {
                 if(logger.isErrorEnabled()) {
                     logger.error("BATCHING_BOLT", ex);
                 }
-            } finally {
-                if(connection != null) {
-                    try {
-                        this.connection.close();
-                    } catch (SQLException ex) {
-                        if(logger.isErrorEnabled()) {
-                            logger.error("BATCHING_BOLT", ex);
-                        }
-                    }
-                }
             }
         }
     }
@@ -138,15 +136,6 @@ public class BatchingBolt implements IRichBolt {
     @Override
     public void cleanup() {
         this.logDetailQueue.clear();
-        if(this.connection != null) {
-            try {
-                this.connection.close();
-            } catch (SQLException ex) {
-                if(logger.isErrorEnabled()) {
-                    logger.error("BATCHING_BOLT", ex);
-                }
-            }
-        }
     }
 
     @Override
@@ -159,7 +148,7 @@ public class BatchingBolt implements IRichBolt {
     }
 
     private String buildSysLogDetailSql(SysLogDetail entry) {
-        String sql = String.format("Insert Into syslog_detail_data(TypeId, AppId, AddTime) Values(%d,%d,'%s');",
+        String sql = String.format("Insert Into syslog_detail_data(AppId, TypeId, AddTime) Values(%d,%d,'%s');",
                 entry.getAppId(),
                 entry.getLogTypeId(),
                 detailFormat.format(entry.getLogDate()));

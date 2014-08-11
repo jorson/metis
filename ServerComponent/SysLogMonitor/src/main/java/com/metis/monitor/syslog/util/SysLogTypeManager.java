@@ -48,17 +48,15 @@ public class SysLogTypeManager {
 
     public Integer get(SysLogType entry) {
         String result = null;
-        synchronized (SysLogTypeManager.class) {
-            result = redisClient.get(entry.getFeatureCode());
-            if(result == null) {
+        result = redisClient.get(entry.getFeatureCode());
+        if(result == null) {
+            synchronized (SysLogTypeManager.class) {
                 SysLogType item = missingHandler.handle(entry);
-                synchronized (SysLogTypeManager.class) {
-                    redisClient.set(item.getFeatureCode(), String.valueOf(item.getLogId()));
-                }
+                redisClient.set(item.getFeatureCode(), String.valueOf(item.getLogId()));
                 return item.getLogId();
-            } else {
-                return Integer.parseInt(result);
             }
+        } else {
+            return Integer.parseInt(result);
         }
     }
 

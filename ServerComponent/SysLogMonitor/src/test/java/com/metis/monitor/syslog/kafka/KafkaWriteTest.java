@@ -32,7 +32,7 @@ public class KafkaWriteTest {
                     "LogCallStack5"
             };
     private static Random random = new Random();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Test
     public void writeToKafka() throws InterruptedException {

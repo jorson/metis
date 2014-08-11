@@ -30,11 +30,12 @@ import java.util.Arrays;
 public class KafkaSpoutTestTopology {
 
     private final BrokerHosts brokerHosts;
+    private static Config config;
 
     public KafkaSpoutTestTopology(String kafkaZookeeper) throws Exception {
         brokerHosts = new ZkHosts(kafkaZookeeper);
         String configPath = "E:\\CodeInGit\\metis_github\\ServerComponent\\SysLogMonitor\\src\\main\\resources\\monitor.syslog.properties";
-        SysLogConfig.getInstance().loadConfig(configPath);
+        config = SysLogConfig.getInstance().loadConfig(configPath);
     }
 
     public StormTopology buildTopology() {
@@ -43,14 +44,14 @@ public class KafkaSpoutTestTopology {
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("str-sys-log", new KafkaSpout(kafkaConfig), 1);
         //接收来至队列的数据(String)类型, 并将其转换为可流动的对象
-        builder.setBolt("original-sys-log", new OriginalParseBolt(), 5)
+        builder.setBolt("original-sys-log", new OriginalParseBolt(), 1)
                 .shuffleGrouping("str-sys-log");
         //接收原始日志对象, 并转换为可统计对象, 根据APPID进行分组
-        builder.setBolt("trans-sys-log", new TransportBolt(), 3)
+        builder.setBolt("trans-sys-log", new TransportBolt(), 1)
                 .fieldsGrouping("original-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         //批量处理数据, 根据AppId进行分组处理
-        builder.setBolt("batch-sys-log", new BatchingBolt(), 3)
+        builder.setBolt("batch-sys-log", new BatchingBolt(), 1)
                 .fieldsGrouping("trans-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         return builder.createTopology();
@@ -60,7 +61,6 @@ public class KafkaSpoutTestTopology {
 
         String kafkaZk = "192168-072166:2181,192168-072166:2182,192168-072166:2183";
         KafkaSpoutTestTopology kafkaSpoutTestTopology = new KafkaSpoutTestTopology(kafkaZk);
-        Config config = new Config();
         config.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 2000);
 
         StormTopology stormTopology = kafkaSpoutTestTopology.buildTopology();
@@ -75,8 +75,8 @@ public class KafkaSpoutTestTopology {
             config.put(Config.STORM_ZOOKEEPER_SERVERS, Arrays.asList(dockerIp));
             StormSubmitter.submitTopology(name, config, stormTopology);
         } else {
-            config.setNumWorkers(2);
-            config.setMaxTaskParallelism(2);
+            config.setNumWorkers(1);
+            config.setMaxTaskParallelism(1);
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("kafka", config, stormTopology);
         }
