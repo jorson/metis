@@ -25,6 +25,7 @@ public class RemoteTopology {
 
     private final BrokerHosts brokerHosts;
     private static final Logger logger = LoggerFactory.getLogger(RemoteTopology.class);
+    private static Config topologyConfig;
 
     public RemoteTopology(String configPath) throws Exception {
         File file = new File(configPath);
@@ -33,7 +34,9 @@ public class RemoteTopology {
                 logger.error("RemoteTopology", "config file not exists!" + configPath);
             }
         }
-        SysLogConfig.getInstance().loadConfig(configPath);
+        topologyConfig = SysLogConfig.getInstance().loadConfig(configPath);
+        logger.info("RemoteTopology", "config path:" + configPath);
+        System.out.println("config path:" + configPath);
         String kafkaZookeeper = SysLogConfig.getInstance().tryGet(SysLogConfig.ZOOKEEPER_HOSTS);
         brokerHosts = new ZkHosts(kafkaZookeeper);
     }
@@ -69,12 +72,11 @@ public class RemoteTopology {
             return;
         }
         RemoteTopology remoteTopology = new RemoteTopology(args[0]);
-        Config config = new Config();
         //每秒的发出一次
-        config.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 1000);
+        topologyConfig.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 1000);
         StormTopology stormTopology = remoteTopology.buildTopology();
         //提交处理
-        StormSubmitter.submitTopology("system-log-monitor", config, stormTopology);
+        StormSubmitter.submitTopology("system-log-monitor", topologyConfig, stormTopology);
         System.out.println("submit error");
     }
 }

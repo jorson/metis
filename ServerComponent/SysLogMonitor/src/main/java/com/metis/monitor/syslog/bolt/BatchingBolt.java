@@ -34,8 +34,8 @@ public class BatchingBolt implements IRichBolt {
     private Queue<SysLogDetail> logDetailQueue = new ConcurrentLinkedQueue<SysLogDetail>();
     private Long currentTimestamp;
     private Connection connection;
-    private SimpleDateFormat detailFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:00");
+    private SimpleDateFormat detailFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -46,12 +46,17 @@ public class BatchingBolt implements IRichBolt {
         String url = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_URL);
         String user = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_USER);
         String password = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_PASSWORD);
-
+        logger.info("BATCHING_BOLT", String.format("%s,%s,%s,%s", driver, url, user, password));
         try {
             Class.forName(driver);
             connection = DriverManager.getConnection(url, user, password);
+            if(connection == null) {
+                logger.info("BATCHING_BOLT", "Init Connection Error!!");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(logger.isErrorEnabled()) {
+                logger.error("BATCHING_BOLT", e);
+            }
         }
         //最后设置
         Calendar calendar = Calendar.getInstance();
@@ -115,6 +120,16 @@ public class BatchingBolt implements IRichBolt {
             } catch (Exception ex) {
                 if(logger.isErrorEnabled()) {
                     logger.error("BATCHING_BOLT", ex);
+                }
+            } finally {
+                if(connection != null) {
+                    try {
+                        this.connection.close();
+                    } catch (SQLException ex) {
+                        if(logger.isErrorEnabled()) {
+                            logger.error("BATCHING_BOLT", ex);
+                        }
+                    }
                 }
             }
         }

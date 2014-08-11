@@ -116,6 +116,8 @@ public class SysLogConfig {
         this.config.put(CACHE_PORT, cachePort);
         this.config.put(CACHE_CATALOG, cacheCatalog);
 
+        logger.info("SysLogConfig", String.format("%s,%s,%s,%s", targetDriver, targetUrl, targetUser, targetPassword));
+
         /*其他的设置*/
         String debugMode = properties.getProperty(DEBUG_MODE, "false");
         if(debugMode.equalsIgnoreCase("true")) {
