@@ -17,6 +17,7 @@ public class C3P0Utils {
     private static volatile C3P0Utils instance = null;
     private ComboPooledDataSource comboPooledDataSource = null;
     private static Logger logger = LoggerFactory.getLogger(C3P0Utils.class);
+    private static boolean hasInit = false;
 
     public static C3P0Utils getInstance() {
         synchronized (C3P0Utils.class) {
@@ -29,14 +30,12 @@ public class C3P0Utils {
         return instance;
     }
 
-    private C3P0Utils() {
-        String driver = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_DRIVER);
-        String url = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_URL);
-        String user = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_USER);
-        String password = SysLogConfig.getInstance().tryGet(SysLogConfig.TARGET_PASSWORD);
-
+    public void init(String driver, String url, String user, String password) {
         System.out.println(String.format("[C3P0Utils]Connection Info:%s,%s,%s,%s",
                 driver, url, user, password));
+        if(hasInit) {
+            return;
+        }
 
         if(comboPooledDataSource == null) {
             comboPooledDataSource = new ComboPooledDataSource();
@@ -53,8 +52,14 @@ public class C3P0Utils {
         comboPooledDataSource.setJdbcUrl(url);
         //C3P0的可选配置
         comboPooledDataSource.setMinPoolSize(5);
-        comboPooledDataSource.setMaxPoolSize(15);
+        comboPooledDataSource.setMaxPoolSize(20);
         comboPooledDataSource.setMaxIdleTime(600);
+
+        hasInit = true;
+    }
+
+    private C3P0Utils() {
+
     }
 
     public Connection getConnection() {

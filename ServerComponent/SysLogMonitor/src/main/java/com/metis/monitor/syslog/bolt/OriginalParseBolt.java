@@ -61,6 +61,7 @@ public class OriginalParseBolt extends BaseRichBolt {
             //将转换后的对象发出,同时发出AppId作为后续分组的依据
             this.collector.emit(new Values(appId, sysLog));
             this.collector.ack(tuple);
+            logger.info("OriginalParseBolt", "End Process," + originalArray[4]);
         } catch(Exception ex) {
             if(logger.isErrorEnabled()) {
                 logger.error("OriginalParseBolt", ex);

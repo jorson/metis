@@ -1,7 +1,6 @@
 package com.metis.monitor.syslog.topology;
 
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.spout.SchemeAsMultiScheme;
@@ -50,14 +49,14 @@ public class RemoteTopology {
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("str-sys-log", new KafkaSpout(kafkaConfig), 1);
         //接收来至队列的数据(String)类型, 并将其转换为可流动的对象
-        builder.setBolt("original-sys-log", new OriginalParseBolt(), 3)
+        builder.setBolt("original-sys-log", new OriginalParseBolt(), 1)
                 .shuffleGrouping("str-sys-log");
         //接收原始日志对象, 并转换为可统计对象, 根据APPID进行分组
-        builder.setBolt("trans-sys-log", new TransportBolt(), 3)
+        builder.setBolt("trans-sys-log", new TransportBolt(), 5)
                 .fieldsGrouping("original-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         //批量处理数据, 根据AppId进行分组处理
-        builder.setBolt("batch-sys-log", new BatchingBolt(), 3)
+        builder.setBolt("batch-sys-log", new BatchingBolt(), 5)
                 .fieldsGrouping("trans-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         return builder.createTopology();
@@ -74,9 +73,12 @@ public class RemoteTopology {
         RemoteTopology remoteTopology = new RemoteTopology(args[0]);
         //每秒的发出一次
         topologyConfig.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 1000);
+        //这里限制一下工人的数量
+        topologyConfig.setNumWorkers(1);
+        topologyConfig.setMaxTaskParallelism(5);
         StormTopology stormTopology = remoteTopology.buildTopology();
         //提交处理
         StormSubmitter.submitTopology("system-log-monitor", topologyConfig, stormTopology);
-        System.out.println("submit error");
+        System.out.println("submit success");
     }
 }

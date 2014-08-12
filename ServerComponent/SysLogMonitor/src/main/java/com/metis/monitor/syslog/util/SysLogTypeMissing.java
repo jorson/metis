@@ -55,8 +55,9 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
     private SysLogType findLogType(String featureCode) {
         PreparedStatement statement = null;
         SysLogType logType = null;
+        Connection connection = null;
         try {
-            Connection connection = C3P0Utils.getInstance().getConnection();
+            connection = C3P0Utils.getInstance().getConnection();
             if(connection == null) {
                 if(logger.isErrorEnabled()) {
                     logger.error("BATCHING_BOLT", "Get Connection from C3P0Utils IS NULL");
@@ -76,11 +77,17 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
             if(logger.isErrorEnabled()) {
                 logger.error("put update failed", ex);
             }
-        }
-        finally {
+        } finally {
             if(statement != null) {
                 try{
                     statement.close();
+                } catch (Exception ex) {
+
+                }
+            }
+            if(connection != null) {
+                try {
+                    connection.close();
                 } catch (Exception ex) {
 
                 }
@@ -91,8 +98,9 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
 
     private void addLogType(SysLogType entry) {
         PreparedStatement statement = null;
+        Connection connection = null;
         try {
-            Connection connection = C3P0Utils.getInstance().getConnection();
+            connection = C3P0Utils.getInstance().getConnection();
             if(connection == null) {
                 if(logger.isErrorEnabled()) {
                     logger.error("BATCHING_BOLT", "Get Connection from C3P0Utils IS NULL");
@@ -120,6 +128,21 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
         } catch (SQLException ex) {
             if(logger.isErrorEnabled()) {
                 logger.error("put update failed", ex);
+            }
+        } finally {
+            if(statement != null) {
+                try{
+                    statement.close();
+                } catch (Exception ex) {
+
+                }
+            }
+            if(connection != null) {
+                try {
+                    connection.close();
+                } catch (Exception ex) {
+
+                }
             }
         }
     }
