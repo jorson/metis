@@ -9,6 +9,7 @@ public class JobExecutor {
     public static final String COMBINE_FILE_JOB_KEY = "combine.file";
     public static final String USER_PAGE_VISIT_JOB_KEY = "user.page.visit";
     public static final String PAGE_VISIT_JOB_KEY = "page.visit";
+    public static final String PAGE_USE_RATE_KEY = "page.use.rate";
 
     private static String[] jobArgs;
 
@@ -39,6 +40,8 @@ public class JobExecutor {
             job = new UserPageVisitJob(configFilePath);
         } else if(jobKey.equalsIgnoreCase(PAGE_VISIT_JOB_KEY)) {
             job = new PageVisitJob(configFilePath);
+        } else if (jobKey.equalsIgnoreCase(PAGE_USE_RATE_KEY)) {
+            job = new PageUseRateJob(configFilePath);
         }
 
         if(job != null) {

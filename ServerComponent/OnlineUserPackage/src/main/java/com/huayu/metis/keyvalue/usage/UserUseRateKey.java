@@ -42,20 +42,57 @@ public class UserUseRateKey implements WritableComparable<UserUseRateKey>, DBWri
 
 
     @Override
-    public int compareTo(UserUseRateKey o) {
-        return 0;
+    public int compareTo(UserUseRateKey that) {
+        int compare = startDate.compareTo(that.startDate);
+        if(compare != 0)
+            return compare;
+        compare = endDate.compareTo(that.endDate);
+        if(compare != 0)
+            return compare;
+        compare = appId.compareTo(that.appId);
+        if(compare != 0)
+            return compare;
+        compare = terminalCode.compareTo(that.terminalCode);
+        if(compare != 0)
+            return compare;
+        compare = normItemKey.compareTo(that.normItemKey);
+        if(compare != 0)
+            return compare;
+        return periodType.compareTo(that.periodType);
     }
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {
-
+        this.startDate.write(dataOutput);
+        this.endDate.write(dataOutput);
+        this.appId.write(dataOutput);
+        this.terminalCode.write(dataOutput);
+        this.periodType.write(dataOutput);
+        this.normItemKey.write(dataOutput);
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-
+        this.startDate.readFields(dataInput);
+        this.endDate.readFields(dataInput);
+        this.appId.readFields(dataInput);
+        this.terminalCode.readFields(dataInput);
+        this.periodType.readFields(dataInput);
+        this.normItemKey.readFields(dataInput);
     }
 
+    @Override
+    public int hashCode() {
+        int result = 1, prim = 75;
+        result = prim + appId.get() + terminalCode.get() + normItemKey.get() + periodType.get();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d,%d,%d,%d,%d,%d", startDate.get(),
+                endDate.get(), periodType.get(), appId.get(), terminalCode.get(), normItemKey.get());
+    }
 
     public void setStartDate(LongWritable startDate) {
         this.startDate = startDate;

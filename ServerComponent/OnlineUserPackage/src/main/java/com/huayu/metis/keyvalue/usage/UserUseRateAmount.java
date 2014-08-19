@@ -11,8 +11,9 @@ import java.sql.SQLException;
  * Created by jorson on 14-7-30.
  */
 public class UserUseRateAmount extends IntWritable implements DBWritable {
-
-
+    public UserUseRateAmount(){
+        super();
+    }
     public UserUseRateAmount(int value) {
         super(value);
     }

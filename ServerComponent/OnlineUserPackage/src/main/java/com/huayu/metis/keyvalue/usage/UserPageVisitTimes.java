@@ -11,7 +11,9 @@ import java.sql.SQLException;
  * Created by Administrator on 14-7-30.
  */
 public class UserPageVisitTimes extends IntWritable implements DBWritable {
+    public UserPageVisitTimes(){
 
+    }
     public UserPageVisitTimes(int value) {
         super(value);
     }

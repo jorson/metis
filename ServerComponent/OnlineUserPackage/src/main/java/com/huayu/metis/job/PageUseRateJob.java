@@ -12,6 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.db.DBConfiguration;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -54,6 +55,7 @@ public class PageUseRateJob extends BasicJob {
             //开始循环
             Calendar start = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
+
             //设置日历
             start.setFirstDayOfWeek(Calendar.MONDAY);
             end.setFirstDayOfWeek(Calendar.MONDAY);
@@ -84,7 +86,7 @@ public class PageUseRateJob extends BasicJob {
                 }
             }
             //写入最后执行的日期
-            writeLastExecuteDate("page_visit", format.format(start.getTime()));
+            writeLastExecuteDate("page_visit_rate", format.format(start.getTime()));
 
         } catch (Exception ex) {
             logger.error("PageVisitRateJob", ex);
@@ -124,26 +126,38 @@ public class PageUseRateJob extends BasicJob {
     }
 
     //执行JOB
-    private int executeJob(Configuration conf, FileSystem fs, String periodType, Calendar executeDate)
+    private int executeJob(Configuration conf, FileSystem fs, String periodType, Calendar start)
             throws Exception {
         Path inputPath = null, tmpOutputPath = null;
-        //倒退一天
-        executeDate.add(Calendar.DAY_OF_MONTH, -1);
-
+        Calendar executeDate = Calendar.getInstance();
+        executeDate.setTimeInMillis(start.getTimeInMillis());
+        executeDate.setFirstDayOfWeek(Calendar.MONDAY);
         if(periodType.equalsIgnoreCase("day")) {
             conf.set("custom.period", periodType);
             inputPath = new Path(String.format("%s/daily/%s/visit-log.seq", combinePath,
                     format.format(executeDate.getTime())));
+            tmpOutputPath = new Path(String.format("%s/daily/%s/visit-tmp-output", combinePath,
+                    format.format(executeDate.getTime())));
         } else if (periodType.equalsIgnoreCase("week")) {
+            //倒退一天
+            executeDate.add(Calendar.DAY_OF_MONTH, -1);
             conf.set("custom.period", periodType);
-            int weekOfYear = executeDate.getWeekYear();
+            int weekOfYear = executeDate.get(Calendar.WEEK_OF_YEAR);
             inputPath = new Path(String.format("%s/week/%d%d/visit-log.seq", combinePath,
                     executeDate.get(Calendar.YEAR),
                     weekOfYear));
+            tmpOutputPath = new Path(String.format("%s/week/%d%d/visit-tmp-output", combinePath,
+                    executeDate.get(Calendar.YEAR),
+                    weekOfYear));
         } else if (periodType.equalsIgnoreCase("month")) {
+            //倒退一天
+            executeDate.add(Calendar.DAY_OF_MONTH, -1);
             conf.set("custom.period", periodType);
             int monthOfYear = executeDate.get(Calendar.MONTH);
             inputPath = new Path(String.format("%s/month/%d%d/visit-log.seq", combinePath,
+                    executeDate.get(Calendar.YEAR),
+                    monthOfYear));
+            tmpOutputPath = new Path(String.format("%s/month/%d%d/visit-tmp-output", combinePath,
                     executeDate.get(Calendar.YEAR),
                     monthOfYear));
         } else{
@@ -194,6 +208,9 @@ public class PageUseRateJob extends BasicJob {
         //设置输出的格式
         rateJob.setInputFormatClass(SequenceFileInputFormat.class);
         rateJob.setOutputFormatClass(CustomDbOutputFormat.class);
+        //设置MAP输出类型
+        rateJob.setMapOutputKeyClass(UserUseRateKey.class);
+        rateJob.setMapOutputValueClass(LongWritable.class);
         //设置输出键的类型
         rateJob.setOutputKeyClass(UserUseRateKey.class);
         rateJob.setOutputValueClass(UserUseRateAmount.class);
@@ -205,9 +222,19 @@ public class PageUseRateJob extends BasicJob {
         JobControl control = new JobControl("user.user.page.rate");
         control.addJob(ctrlUseJob);
         control.addJob(ctrlRateJob);
-        control.run();
 
-        return 0;
+        Thread thread = new Thread(control);
+        thread.start();
+        while (true) {
+            if(control.allFinished()){
+                control.stop();
+                return 0;
+            }
+            if(control.getFailedJobList().size() > 0){
+                control.stop();
+                return 1;
+            }
+        }
     }
 
     //获取最后执行的日期

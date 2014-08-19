@@ -4,6 +4,7 @@ import com.huayu.metis.config.UserOnlinePackageConfig;
 import com.huayu.metis.io.CustomDbOutputFormat;
 import com.huayu.metis.keyvalue.usage.PageVisitKey;
 import com.huayu.metis.keyvalue.usage.PageVisitOutputValue;
+import com.huayu.metis.keyvalue.usage.PageVisitValue;
 import com.huayu.metis.keyvalue.usage.UserPageVisitKey;
 import com.huayu.metis.mr.usage.PageVisitMapReduce;
 import com.huayu.metis.mr.usage.UserPageVisitMapReduce;
@@ -122,23 +123,27 @@ public class PageVisitJob extends BasicJob {
         }
     }
 
-    private int executeJob(Configuration conf, FileSystem fs, String periodType, Calendar executeDate)
+    private int executeJob(Configuration conf, FileSystem fs, String periodType, Calendar start)
             throws Exception {
         Path inputPath = null;
-        //倒退一天
-        executeDate.add(Calendar.DAY_OF_MONTH, -1);
-
+        Calendar executeDate = Calendar.getInstance();
+        executeDate.setTimeInMillis(start.getTimeInMillis());
+        executeDate.setFirstDayOfWeek(Calendar.MONDAY);
         if(periodType.equalsIgnoreCase("day")) {
             conf.set("custom.period", periodType);
             inputPath = new Path(String.format("%s/daily/%s/visit-log.seq", combinePath,
                     format.format(executeDate.getTime())));
         } else if (periodType.equalsIgnoreCase("week")) {
+            //倒退一天
+            executeDate.add(Calendar.DAY_OF_MONTH, -1);
             conf.set("custom.period", periodType);
-            int weekOfYear = executeDate.getWeekYear();
+            int weekOfYear = executeDate.get(Calendar.WEEK_OF_YEAR);
             inputPath = new Path(String.format("%s/week/%d%d/visit-log.seq", combinePath,
                     executeDate.get(Calendar.YEAR),
                     weekOfYear));
         } else if (periodType.equalsIgnoreCase("month")) {
+            //倒退一天
+            executeDate.add(Calendar.DAY_OF_MONTH, -1);
             conf.set("custom.period", periodType);
             int monthOfYear = executeDate.get(Calendar.MONTH);
             inputPath = new Path(String.format("%s/month/%d%d/visit-log.seq", combinePath,
@@ -157,13 +162,15 @@ public class PageVisitJob extends BasicJob {
 
         Job job = Job.getInstance(conf);
         job.setJobName("page.visit." + format.format(executeDate.getTime()));
-        job.setJarByClass(UserPageVisitJob.class);
+        job.setJarByClass(PageVisitJob.class);
         //设置Mapper
         job.setMapperClass(PageVisitMapReduce.PageVisitMapper.class);
         //设置Reducer
         job.setReducerClass(PageVisitMapReduce.PageVisitReducer.class);
         job.setNumReduceTasks(1);
         //设置Job输出的Key
+        job.setMapOutputKeyClass(PageVisitKey.class);
+        job.setMapOutputValueClass(PageVisitValue.class);
         job.setOutputKeyClass(PageVisitKey.class);
         job.setOutputValueClass(PageVisitOutputValue.class);
         //设置输入和输出格式类

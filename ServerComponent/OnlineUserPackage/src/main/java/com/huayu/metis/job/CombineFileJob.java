@@ -98,10 +98,10 @@ public class CombineFileJob extends BasicJob {
                 executeDate.get(Calendar.DATE));
         //倒退一天
         lastDayOfWeek.add(Calendar.DAY_OF_MONTH, -1);
-        int weekOfYear = lastDayOfWeek.getWeekYear();
+        int weekOfYear = lastDayOfWeek.get(Calendar.WEEK_OF_YEAR);
 
         List<URI> lstUri = new ArrayList<URI>(7);
-        while (lastDayOfWeek.getWeeksInWeekYear() == weekOfYear) {
+        while (lastDayOfWeek.get(Calendar.WEEK_OF_YEAR) == weekOfYear) {
             lstUri.add(new URI(String.format("%s/daily/%s/%s-log.seq",
                     combinePath, format.format(lastDayOfWeek.getTime()),
                     logKey)));

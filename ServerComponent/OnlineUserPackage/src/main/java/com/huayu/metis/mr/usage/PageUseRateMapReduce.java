@@ -1,19 +1,20 @@
 package com.huayu.metis.mr.usage;
 
 import com.huayu.metis.entry.VisitLogEntry;
-import com.huayu.metis.keyvalue.usage.*;
+import com.huayu.metis.keyvalue.usage.PageVisitOutputValue;
+import com.huayu.metis.keyvalue.usage.UserUseKey;
+import com.huayu.metis.keyvalue.usage.UserUseRateAmount;
+import com.huayu.metis.keyvalue.usage.UserUseRateKey;
 import com.huayu.metis.util.CalendarExtend;
-import javafx.util.Pair;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * 用于计算页面访问频率的MR
@@ -25,7 +26,6 @@ public class PageUseRateMapReduce {
      * 用户使用应用中的页面的Mapper
      */
     public static class UserUsePageMapper extends Mapper<LongWritable, VisitLogEntry, UserUseKey, IntWritable> {
-
 
         private UserUseKey writableKey = new UserUseKey();
         private IntWritable writableValue = new IntWritable(1);
@@ -78,11 +78,9 @@ public class PageUseRateMapReduce {
     }
 
     public static class UserUsePageReducer extends Reducer<UserUseKey, IntWritable, UserUseKey, IntWritable> {
-
         @Override
         protected void reduce(UserUseKey key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
-
             int result = 0;
             for(IntWritable val : values) {
                 result += val.get();
@@ -212,15 +210,19 @@ public class PageUseRateMapReduce {
             List<Long> userList = new ArrayList<Long>(1000);
             long userId = 0L;
 
+
             for(LongWritable val : values) {
                 userId = val.get();
                 if(!userList.contains(userId)) {
                     userList.add(userId);
                 }
             }
+
             context.write(key, new UserUseRateAmount(userList.size()));
         }
     }
+
+
 
 
 }
