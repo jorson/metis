@@ -45,6 +45,7 @@ public class RemoteTopology {
         String topic = SysLogConfig.getInstance().tryGet(SysLogConfig.KAFKA_TOPIC, "sys_log");
         //设置Spout的Config
         SpoutConfig kafkaConfig = new SpoutConfig(brokerHosts, topic, "", "syslog");
+        kafkaConfig.maxOffsetBehind = 0;
         kafkaConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("str-sys-log", new KafkaSpout(kafkaConfig), 1);

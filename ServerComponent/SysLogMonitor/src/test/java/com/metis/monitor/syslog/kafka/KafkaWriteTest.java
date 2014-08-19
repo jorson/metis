@@ -36,7 +36,7 @@ public class KafkaWriteTest {
 
     @Test
     public void writeToKafka() throws InterruptedException {
-        long events = 300;
+        long events = 5;
         Properties props = new Properties();
         props.put("metadata.broker.list", "192168-072166:9091,192168-072166:9092,192168-072166:9093");
         props.put("serializer.class", "kafka.serializer.StringEncoder");

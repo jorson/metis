@@ -41,6 +41,7 @@ public class KafkaSpoutTestTopology {
     public StormTopology buildTopology() {
         SpoutConfig kafkaConfig = new SpoutConfig(brokerHosts, "sys_log", "", "storm");
         kafkaConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+        kafkaConfig.maxOffsetBehind = 0;
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("str-sys-log", new KafkaSpout(kafkaConfig), 1);
         //接收来至队列的数据(String)类型, 并将其转换为可流动的对象
