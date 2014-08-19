@@ -39,8 +39,8 @@ public class BatchingBolt extends BaseRichBolt {
     private ConcurrentLinkedQueue<SysLogDetail> tupleQueue = new ConcurrentLinkedQueue<SysLogDetail>();
     private static Long currentTimestamp;
 /*    private Connection connection;*/
-    private SimpleDateFormat detailFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
+    private SimpleDateFormat detailFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:00");
 
     private ExecutorService executorService = null;
     private Cloner cloner;

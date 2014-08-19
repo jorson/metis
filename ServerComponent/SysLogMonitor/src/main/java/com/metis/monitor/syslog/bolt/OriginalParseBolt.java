@@ -25,7 +25,7 @@ public class OriginalParseBolt extends BaseRichBolt {
 
     private static final Logger logger = LoggerFactory.getLogger(OriginalParseBolt.class);
     private static final long serialVersionUID = 1L;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private OutputCollector collector;
 
