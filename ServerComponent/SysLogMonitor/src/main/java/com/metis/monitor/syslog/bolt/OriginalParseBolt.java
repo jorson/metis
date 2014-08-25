@@ -14,6 +14,7 @@ import com.metis.monitor.syslog.util.ConstVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
@@ -43,6 +44,17 @@ public class OriginalParseBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         //获取从KafkaSpout中传递过来的数据
         String originalString = tuple.getValue(0).toString();
+        try{
+            originalString = URLDecoder.decode(originalString, "UTF-8");
+        } catch(Exception ex) {
+            if(logger.isErrorEnabled()) {
+                logger.error("OriginalParseBolt", ex);
+            }
+            this.collector.fail(tuple);
+            //出现异常, 记录日志后 忽略
+            return;
+        }
+
         //用\t分割
         String[] originalArray = originalString.split("\t");
         logger.info("ReMsg:" + originalString + ", Split:" + originalArray.length);

@@ -2,6 +2,7 @@ package com.metis.monitor.syslog.util;
 
 import com.metis.monitor.syslog.config.SysLogConfig;
 import com.metis.monitor.syslog.entry.SysLogType;
+import com.sun.xml.internal.fastinfoset.Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

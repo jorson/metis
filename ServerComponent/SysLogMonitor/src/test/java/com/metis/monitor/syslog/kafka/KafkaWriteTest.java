@@ -5,6 +5,8 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -17,11 +19,11 @@ public class KafkaWriteTest {
     private static final int[] logLevel = new int[] {1, 2, 3, 4, 5};
     private static final String[] logMessage = new String[]
             {
-                    "LogMessage1",
-                    "LogMessage2",
-                    "LogMessage3",
-                    "LogMessage4",
-                    "LogMessage5"
+                    "中文消息1",
+                    "中文消息2",
+                    "中文消息3",
+                    "中文消息4",
+                    "中文消息5"
             };
     private static final String[] logCallStack = new String[]
             {
@@ -32,13 +34,13 @@ public class KafkaWriteTest {
                     "LogCallStack5"
             };
     private static Random random = new Random();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     @Test
-    public void writeToKafka() throws InterruptedException {
-        long events = 5;
+    public void writeToKafka() throws InterruptedException, UnsupportedEncodingException {
+        long events = 1;
         Properties props = new Properties();
-        props.put("metadata.broker.list", "192168-072166:9091,192168-072166:9092,192168-072166:9093");
+        props.put("metadata.broker.list", "192168-205213:9091,192168-205213:9092,192168-205213:9093");
         props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("partitioner.class", "com.metis.monitor.syslog.kafka.SimplePartitioner");
         props.put("request.required.acks", "1");
@@ -87,7 +89,7 @@ public class KafkaWriteTest {
         producer.close();*/
     }
 
-    private String buildOriginalSysLog() {
+    private String buildOriginalSysLog() throws UnsupportedEncodingException {
         int rndNum = random.nextInt(5);
         String result = String.format("%d\t%d\t%s\t%s\t%s",
                 appId[rndNum],
@@ -95,6 +97,6 @@ public class KafkaWriteTest {
                 logMessage[rndNum],
                 logCallStack[rndNum],
                 dateFormat.format(new Date()));
-        return result;
+        return URLEncoder.encode(result, "UTF-8");
     }
 }

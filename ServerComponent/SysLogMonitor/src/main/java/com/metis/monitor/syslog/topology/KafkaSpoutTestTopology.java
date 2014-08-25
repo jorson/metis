@@ -60,7 +60,7 @@ public class KafkaSpoutTestTopology {
 
     public static void main(String[] args) throws Exception {
 
-        String kafkaZk = "192168-072166:2181,192168-072166:2182,192168-072166:2183";
+        String kafkaZk = "192168-205213:2181,192168-205213:2182,192168-205213:2183";
         KafkaSpoutTestTopology kafkaSpoutTestTopology = new KafkaSpoutTestTopology(kafkaZk);
         config.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 2000);
 
