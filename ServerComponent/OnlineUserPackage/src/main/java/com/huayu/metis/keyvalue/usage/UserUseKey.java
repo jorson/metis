@@ -52,6 +52,7 @@ public class UserUseKey implements WritableComparable<UserUseKey> {
     public void write(DataOutput dataOutput) throws IOException {
         startDate.write(dataOutput);
         endDate.write(dataOutput);
+        periodType.write(dataOutput);
         appId.write(dataOutput);
         terminalCode.write(dataOutput);
         userId.write(dataOutput);
@@ -61,6 +62,7 @@ public class UserUseKey implements WritableComparable<UserUseKey> {
     public void readFields(DataInput dataInput) throws IOException {
         startDate.readFields(dataInput);
         endDate.readFields(dataInput);
+        periodType.readFields(dataInput);
         appId.readFields(dataInput);
         terminalCode.readFields(dataInput);
         userId.readFields(dataInput);
