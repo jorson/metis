@@ -16,6 +16,7 @@ import com.metis.monitor.syslog.util.C3P0Utils;
 import com.metis.monitor.syslog.util.ConstVariables;
 import com.metis.monitor.syslog.util.SysLogTypeManager;
 import com.metis.monitor.syslog.util.SysLogTypeMissing;
+import com.metis.monitor.syslog.util.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,17 @@ public class TransportBolt extends BaseRichBolt {
         String url = map.get(SysLogConfig.TARGET_URL).toString();
         String user = map.get(SysLogConfig.TARGET_USER).toString();
         String password = map.get(SysLogConfig.TARGET_PASSWORD).toString();
+        String cacheHost = map.get(SysLogConfig.CACHE_HOST).toString();
+        String cachePort = map.get(SysLogConfig.CACHE_PORT).toString();
+        String cacheCatalog = map.get(SysLogConfig.CACHE_CATALOG).toString();
+        if(logger.isErrorEnabled()) {
+            logger.info("TransportBolt cacheHost:" + cacheHost + ", cachePort:"
+                    + cachePort + ", cacheCatalog:" + cacheCatalog);
+        }
         //初始化C3P0组件
         C3P0Utils.getInstance().init(driver, url, user, password);
+        //初始化RedisClient组件
+        RedisClient.getInstance(cacheHost, Integer.parseInt(cachePort), Integer.parseInt(cacheCatalog));
         //构建LogTypeManager的单例
         SysLogTypeMissing missing = new SysLogTypeMissing();
         this.logTypeManager = SysLogTypeManager.getInstance(missing);

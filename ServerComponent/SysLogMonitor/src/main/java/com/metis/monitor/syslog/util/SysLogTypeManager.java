@@ -40,10 +40,7 @@ public class SysLogTypeManager {
     }
 
     private void initCache() {
-        String host = SysLogConfig.getInstance().tryGet(SysLogConfig.CACHE_HOST);
-        int port = SysLogConfig.getInstance().tryGetInt(SysLogConfig.CACHE_PORT, 6379);
-        int catalog = SysLogConfig.getInstance().tryGetInt(SysLogConfig.CACHE_CATALOG, 1);
-        redisClient = RedisClient.getInstance(host, port, catalog);
+        redisClient = RedisClient.getInstance();
     }
 
     public Integer get(SysLogType entry) {

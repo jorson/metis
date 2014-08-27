@@ -99,18 +99,19 @@ public class BatchingBolt extends BaseRichBolt {
         if(logTime >= intervalMs + currentTimestamp ||
                 currentTime >= intervalMs + currentTimestamp) {
             //先将时间推进
-            currentTimestamp += intervalMs;
-            ConcurrentLinkedQueue<SysLogDetail> queue = cloner.deepClone(tupleQueue);
-            //清空对象
-            this.tupleQueue.clear();
-            //启动线程
-            executorService.execute(new ImportLogData(queue, logTime));
-            //响应应答
-/*            while(!tupleQueue.isEmpty()) {
-                Tuple tup = tupleQueue.poll();
-                collector.ack(tup);
-            }*/
-
+            //currentTimestamp += intervalMs;
+            currentTimestamp = logTime -(logTime % intervalMs);
+            if(this.tupleQueue.size() == 1) {
+                logger.info("BatchingBolt, No Record to Process:" + currentTimestamp);
+            } else {
+                ConcurrentLinkedQueue<SysLogDetail> queue = cloner.deepClone(tupleQueue);
+                //清空对象
+                this.tupleQueue.clear();
+                //将最后一个触发统计的对象重新放回队列
+                this.tupleQueue.add(logDetail);
+                //启动线程
+                executorService.execute(new ImportLogData(queue, logTime));
+            }
         }
         //直接应答
         this.collector.ack(tuple);
@@ -185,7 +186,7 @@ public class BatchingBolt extends BaseRichBolt {
                 Map<Integer, SysLogMiniCycle> miniCycleList = new HashMap<Integer, SysLogMiniCycle>();
                 Integer checkFlag = 0;
 
-                while (!queue.isEmpty()) {
+                while (queue.size() != 1) {
                     detail = queue.poll();
                     statement.addBatch(buildSysLogDetailSql(detail));
                     //做GroupBY的操作
