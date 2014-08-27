@@ -53,7 +53,8 @@ public class C3P0Utils {
         //C3P0的可选配置
         comboPooledDataSource.setMinPoolSize(5);
         comboPooledDataSource.setMaxPoolSize(20);
-        comboPooledDataSource.setMaxIdleTime(600);
+        comboPooledDataSource.setMaxIdleTime(15);
+        comboPooledDataSource.setUnreturnedConnectionTimeout(15);
 
         hasInit = true;
     }

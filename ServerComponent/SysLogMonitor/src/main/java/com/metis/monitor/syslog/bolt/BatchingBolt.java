@@ -96,8 +96,8 @@ public class BatchingBolt extends BaseRichBolt {
                 intervalMs, currentTimestamp, currentTime, logTime));
 
         //如果日志时间达到上报间隔或自然流逝的时间达到时间间隔
-        if(logTime >= intervalMs + currentTimestamp ||
-                currentTime >= intervalMs + currentTimestamp) {
+        //|| currentTime >= intervalMs + currentTimestamp)
+        if(logTime >= intervalMs + currentTimestamp)  {
             //先将时间推进
             //currentTimestamp += intervalMs;
             currentTimestamp = logTime -(logTime % intervalMs);
