@@ -49,10 +49,8 @@ public class TransportBolt extends BaseRichBolt {
         String cacheHost = map.get(SysLogConfig.CACHE_HOST).toString();
         String cachePort = map.get(SysLogConfig.CACHE_PORT).toString();
         String cacheCatalog = map.get(SysLogConfig.CACHE_CATALOG).toString();
-        if(logger.isErrorEnabled()) {
-            logger.info("TransportBolt cacheHost:" + cacheHost + ", cachePort:"
-                    + cachePort + ", cacheCatalog:" + cacheCatalog);
-        }
+        logger.info("TransportBolt cacheHost:" + cacheHost + ", cachePort:"
+            + cachePort + ", cacheCatalog:" + cacheCatalog);
         //初始化C3P0组件
         C3P0Utils.getInstance().init(driver, url, user, password);
         //初始化RedisClient组件
