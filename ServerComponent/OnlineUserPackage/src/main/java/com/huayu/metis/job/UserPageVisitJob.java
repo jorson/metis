@@ -90,7 +90,7 @@ public class UserPageVisitJob extends BasicJob {
             DBConfiguration.configureDB(conf, targetDriver, targetConnect, targetUser, targetPassword);
 
             while (start.before(end)) {
-                Path inputPath = new Path(String.format("%s/%s/visit-log.seq", combinePath,
+                Path inputPath = new Path(String.format("%s/daily/%s/visit-log.seq", combinePath,
                         format.format(start.getTime())));
                 //如果文件不存在就直接忽略掉
                 if(!fs.exists(inputPath)) {
@@ -124,7 +124,6 @@ public class UserPageVisitJob extends BasicJob {
                         new String[] {"StatisticDate", "AppId", "TerminalCode", "UserId", "Visits"});*/
                 //开始执行...直到结束
                 executeResult = job.waitForCompletion(true) ? 0 : 1;
-
                 //继续下一个循环
                 start.add(Calendar.DAY_OF_MONTH,1);
             }
