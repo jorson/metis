@@ -11,10 +11,7 @@ import org.apache.flume.instrumentation.SourceCounter;
 import org.junit.*;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,25 +21,54 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConsumerTest {
 
-/*    private Properties parameters;
+    private Properties parameters;
     private ConsumerConnector consumerConnector;
-    private ExecutorService executorService;*/
+    private ExecutorService executorService;
     private final Charset utf8Code = Charset.forName(KafkaFlumeConstans.DEFAULT_ENCODING);
 
-/*    @Before
+    @Before
     public void setup() {
         this.parameters = new Properties();
 
-        this.parameters.put("zookeeper.connect", "192.168.206.41:2181,192.168.205.3:2181,192.168.205.9:2181");
+        this.parameters.put("zookeeper.connect", "192168-205213:2181,192168-205213:2182,192168-205213:2183");
         this.parameters.put("group.id", "testGroup");
         this.parameters.put("zookeeper.session.timeout.ms", "400");
         this.parameters.put("zookeeper.sync.time.ms", "200");
         this.parameters.put("auto.commit.interval.ms", "1000");
-    }*/
+    }
 
-    //@Test
+    @Test
+    public void simpleConsumer() {
+        ConsumerConfig cc = new ConsumerConfig(this.parameters);
+        ConsumerConnector ctor = Consumer.createJavaConsumerConnector(cc);
+        Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+        topicCountMap.put("page_visit", 4);
+        Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap
+                = ctor.createMessageStreams(topicCountMap);
+
+        List<KafkaStream<byte[], byte[]>> mergeConsumer = new ArrayList<KafkaStream<byte[], byte[]>>();
+        for(Map.Entry<String, List<KafkaStream<byte[], byte[]>>> entry : consumerMap.entrySet()){
+            mergeConsumer.addAll(entry.getValue());
+        }
+        String topic, message;
+        for(KafkaStream stream : mergeConsumer) {
+            ConsumerIterator<byte[], byte[]> it = stream.iterator();
+            while (it.hasNext()) {
+                MessageAndMetadata<byte[], byte[]> messageAndMeta = it.next();
+                //获取消息中的Topic
+                topic = messageAndMeta.topic();
+                //将Topic放到Header中
+                //使用特定的编码生成Message
+                message = new String(messageAndMeta.message(), utf8Code);
+                System.out.println("Topic:" + topic + "Message:" + message);
+            }
+        }
+
+    }
+
+    @Test
     public void getRealTopic() {
-        String topic = "test";
+        String topic = "page_visit";
         if(topic.indexOf(".") == -1) {
             System.out.println("[hy]realTopic:"+topic);
         }
@@ -52,14 +78,15 @@ public class ConsumerTest {
         System.out.println("[hy]realTopic:"+realTopic);
     }
 
-/*    @Test
+    @Test
     public void ConsumerFilterTest() {
         ConsumerConfig consumerConfig = new ConsumerConfig(this.parameters);
         consumerConnector = Consumer.createJavaConsumerConnector(consumerConfig);
-
-        TopicFilter filter = new Whitelist("test.*");
-        List<KafkaStream<byte[], byte[]>> streams =
-                consumerConnector.createMessageStreamsByFilter(filter);
+        Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+        topicCountMap.put("page_visit", 4);
+        Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap
+                = consumerConnector.createMessageStreams(topicCountMap);
+        List<KafkaStream<byte[], byte[]>> streams = mergeTopicStream(consumerMap);
         this.executorService = Executors.newFixedThreadPool(4);
         //创建消息的消费者
         int tNumber = 0;
@@ -67,7 +94,15 @@ public class ConsumerTest {
             this.executorService.submit(new ConsumerRunner(stream, tNumber));
             tNumber++;
         }
-    }*/
+    }
+
+    private List<KafkaStream<byte[], byte[]>> mergeTopicStream(Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap){
+        List<KafkaStream<byte[], byte[]>> mergeConsumer = new ArrayList<KafkaStream<byte[], byte[]>>();
+        for(Map.Entry<String, List<KafkaStream<byte[], byte[]>>> entry : consumerMap.entrySet()){
+            mergeConsumer.addAll(entry.getValue());
+        }
+        return mergeConsumer;
+    }
 
 /*    @After
     public void cleanup() throws InterruptedException {

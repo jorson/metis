@@ -55,14 +55,14 @@ public class KafkaSourceTest {
     public void setUp() throws Exception {
 
         // kafka config
-        this.context.put("zookeeper.connect", "192.168.206.41:2181");
+        this.context.put("zookeeper.connect", "192168-205213:2181,192168-205213:2182,192168-205213:2183");
         this.context.put("group.id", "testGroup");
         this.context.put("zookeeper.session.timeout.ms", "400");
         this.context.put("zookeeper.sync.time.ms", "200");
         this.context.put("auto.commit.interval.ms", "1000");
 
         // custom config
-        this.context.put(KafkaFlumeConstans.CUSTOME_TOPIC_KEY_NAME, "error");
+        this.context.put(KafkaFlumeConstans.CUSTOME_TOPIC_KEY_NAME, "page_visit");
         this.context.put(KafkaFlumeConstans.DEFAULT_ENCODING, "UTF-8");
         this.context.put(KafkaFlumeConstans.CUSTOME_CONSUMER_THREAD_COUNT_KEY_NAME, "4");
 
@@ -82,8 +82,12 @@ public class KafkaSourceTest {
      * @throws InterruptedException              the interrupted exception
      * @throws InterruptedException              the interrupted exception
      */
+    @Test
     public void testLifecycle() throws InterruptedException, LifecycleException {
         source.start();
+
+        Thread.sleep(200000);
+
         source.stop();
     }
 

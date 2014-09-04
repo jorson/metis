@@ -39,8 +39,6 @@ public class KafkaSource extends AbstractSource implements Configurable, EventDr
     private ExecutorService executorService;
     private SourceCounter sourceCounter;
 
-    private final boolean FOR_DEBUG = false;
-
     public static final String DEFAULT_DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Override
@@ -206,63 +204,75 @@ public class KafkaSource extends AbstractSource implements Configurable, EventDr
                     //使用特定的编码生成Message
                     message = new String(messageAndMeta.message(), utf8Code);
 
-                    if (FOR_DEBUG) {
-                        //记录DEBUG日志
-                        LOGGER.debug("[hy]Receive Message [Thread " + this.threadNumber + ", Topic:" + topic + ", Message:" + message + "]");
-                        headers.put(KafkaFlumeConstans.HEADER_TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
-                        headers.put(KafkaFlumeConstans.HEADER_APP_ID_KEY, "7");
+                    if(message == null)
+                        continue;
 
-                        //创建事件
-                        Event event = EventBuilder.withBody(message, utf8Code, headers);
-                        //获取通道, 将事件推入通道
-                        getChannelProcessor().processEvent(event);
-                        //更新计数器
-                        this.sourceCounter.incrementEventAcceptedCount();
+                    List<String[]> recMessage = CsvUtils.splitMultiLines(message);
+                    Event event = null;
+                    if(recMessage.size() == 2) {
+                        event = csvFormatHandle(topic, headers, recMessage);
                     } else {
-
-                        //获取消息体的第3个分量,这个分量表示日志写入的日期, 并且一定存在
-                        if (message != null) {
-                            List<String[]> recMessage = CsvUtils.splitMultiLines(message);
-                            if (recMessage.size() != 2) {
-                                continue;
-                            }
-                            //消息体的第3分量是日期
-                            Date logDate = parse(recMessage.get(1)[2], null);
-                            //如果转换失败...继续处理下一条数据
-                            if(logDate == null) {
-                                continue;
-                            }
-                            long seconds = logDate.getTime();
-                            //消息提的第2分量是AppId
-                            String appid = recMessage.get(1)[1];
-                            //日志写入日期
-                            headers.put(KafkaFlumeConstans.HEADER_TIMESTAMP_KEY, String.valueOf(seconds));
-                            //写入appid
-                            headers.put(KafkaFlumeConstans.HEADER_APP_ID_KEY, appid);
-                            //如果消息的Topic中包含有"monitor", 表示是API监控所需要的消息
-                            if (topic.startsWith("monitor")) {
-                                //将消息中的第一行Join后写入Header
-                                String messageField = CsvUtils.join(recMessage.get(0));
-                                headers.put(KafkaFlumeConstans.HEADER_FIELDS_KEY, messageField);
-                            }
-                            //将第2行的数据拼接后写入Event的Body中
-                            realMessage = CsvUtils.join(recMessage.get(1));
-
-                            //记录DEBUG日志
-                            LOGGER.debug("[hy]Receive Message [Thread " + this.threadNumber + ", Topic:" + topic + "AppId:" + appid + ", Message:" + message + "]");
-                            //创建事件
-                            Event event = EventBuilder.withBody(realMessage, utf8Code, headers);
-                            //获取通道, 将事件推入通道
-                            getChannelProcessor().processEvent(event);
-                            //更新计数器
-                            this.sourceCounter.incrementEventAcceptedCount();
-                        }
+                        event = normalFormatHandle(headers, message);
                     }
+
+                    if(event == null)
+                        continue;
+
+                    //获取通道, 将事件推入通道
+                    getChannelProcessor().processEvent(event);
+
+                    //更新计数器
+                    this.sourceCounter.incrementEventAcceptedCount();
                 }
 
             } catch (Exception ex){
                 ex.printStackTrace();
             }
+        }
+
+        private Event csvFormatHandle(String topic, Map<String, String> headers, List<String[]> recMessage) {
+            String realMessage = "";
+            //消息体的第3分量是日期
+            Date logDate = parse(recMessage.get(1)[2], null);
+            //如果转换失败...继续处理下一条数据
+            if(logDate == null) {
+                return null;
+            }
+            long seconds = logDate.getTime();
+            //消息提的第2分量是AppId
+            String appid = recMessage.get(1)[1];
+            //日志写入日期
+            headers.put(KafkaFlumeConstans.HEADER_TIMESTAMP_KEY, String.valueOf(seconds));
+            //写入appid
+            headers.put(KafkaFlumeConstans.HEADER_APP_ID_KEY, appid);
+            //如果消息的Topic中包含有"monitor", 表示是API监控所需要的消息
+            if (topic.startsWith("monitor")) {
+                //将消息中的第一行Join后写入Header
+                String messageField = CsvUtils.join(recMessage.get(0));
+                headers.put(KafkaFlumeConstans.HEADER_FIELDS_KEY, messageField);
+            }
+            //将第2行的数据拼接后写入Event的Body中
+            realMessage = CsvUtils.join(recMessage.get(1));
+
+            //记录DEBUG日志
+            System.out.println("[hy]Receive Message [Thread " + this.threadNumber
+                    + ", Topic:" + topic + "AppId:"
+                    + appid + ", Message:" + recMessage.get(1) + "]");
+            //创建事件
+            Event event = EventBuilder.withBody(realMessage, utf8Code, headers);
+            return event;
+        }
+
+        private Event normalFormatHandle(Map<String, String> headers, String message) {
+            if("".equals(message)){
+                return null;
+            }
+            if(message.indexOf("\t") == -1) {
+                return null;
+            }
+            System.out.println("[hy]Receive Message" + message);
+            Event event = EventBuilder.withBody(message, utf8Code, headers);
+            return event;
         }
 
         private String getRealTopic(String topic) {
