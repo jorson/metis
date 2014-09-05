@@ -34,7 +34,7 @@ public class SequenceFileCombinerTest {
         Configuration conf = new Configuration();
         conf.set("fs.default.name", "hdfs://192168-072166:10000");
 
-        URI hdfsPath = new URI("hdfs://192168-072166:10000/original/20140727/visit");
+        URI hdfsPath = new URI("hdfs://192168-072166:10000/original/20140826/visit");
         Path path = new Path(hdfsPath);
 
         //先判断文件夹是否存在, 如果不存在, 则先创建文件夹
@@ -44,11 +44,11 @@ public class SequenceFileCombinerTest {
         }
 
         String[] files = new String[] {
-                "hdfs://192168-072166:10000/original/20140726/visit/part1.log",
-                "hdfs://192168-072166:10000/original/20140726/visit/part2.log",
-                "hdfs://192168-072166:10000/original/20140726/visit/part3.log",
-                "hdfs://192168-072166:10000/original/20140726/visit/part4.log",
-                "hdfs://192168-072166:10000/original/20140726/visit/part5.log",
+                "hdfs://192168-072166:10000/original/20140826/visit/part1.log",
+                "hdfs://192168-072166:10000/original/20140826/visit/part2.log",
+                "hdfs://192168-072166:10000/original/20140826/visit/part3.log",
+                "hdfs://192168-072166:10000/original/20140826/visit/part4.log",
+                "hdfs://192168-072166:10000/original/20140826/visit/part5.log",
         };
         long counter = 0;
         SequenceFile.Writer writer;
@@ -67,7 +67,7 @@ public class SequenceFileCombinerTest {
                 int order = rnd.nextInt(5);
                 int uOrder = rnd.nextInt(9);
 
-                String orgText = String.format("auc\t%d\t%d\t1001\t3264456\trefer.page\tvisit.page\tvisit.param\t2014-07-17 15:15:15",
+                String orgText = String.format("auc\t%d\t%d\t1001\t3264456\trefer.page\tvisit.page\tvisit.param\t2014-08-26 15:15:15",
                         userIds[uOrder], appIds[order].intValue());
                 Text value = new Text(orgText);
                 writer.append(new LongWritable(counter), value);

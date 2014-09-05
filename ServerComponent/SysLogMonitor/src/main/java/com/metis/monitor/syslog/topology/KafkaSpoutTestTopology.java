@@ -34,7 +34,7 @@ public class KafkaSpoutTestTopology {
 
     public KafkaSpoutTestTopology(String kafkaZookeeper) throws Exception {
         brokerHosts = new ZkHosts(kafkaZookeeper);
-        String configPath = "E:\\CodeInGit\\metis_github\\ServerComponent\\SysLogMonitor\\src\\main\\resources\\monitor.syslog.properties";
+        String configPath = "D:\\Documents\\metis_github\\ServerComponent\\SysLogMonitor\\src\\main\\resources\\monitor.syslog.properties";
         config = SysLogConfig.getInstance().loadConfig(configPath);
     }
 
@@ -48,11 +48,11 @@ public class KafkaSpoutTestTopology {
         builder.setBolt("original-sys-log", new OriginalParseBolt(), 1)
                 .shuffleGrouping("str-sys-log");
         //接收原始日志对象, 并转换为可统计对象, 根据APPID进行分组
-        builder.setBolt("trans-sys-log", new TransportBolt(), 1)
+        builder.setBolt("trans-sys-log", new TransportBolt(), 5)
                 .fieldsGrouping("original-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         //批量处理数据, 根据AppId进行分组处理
-        builder.setBolt("batch-sys-log", new BatchingBolt(), 1)
+        builder.setBolt("batch-sys-log", new BatchingBolt(), 5)
                 .fieldsGrouping("trans-sys-log",
                         new Fields(ConstVariables.SYS_LOG_ORIGINAL_PARTITION_FIELD));
         return builder.createTopology();
@@ -60,6 +60,7 @@ public class KafkaSpoutTestTopology {
 
     public static void main(String[] args) throws Exception {
 
+        //String kafkaZk = "ip-121207-240190.tianyu.nd:2181,ip-121207-240190.tianyu.nd:2182,ip-121207-240190.tianyu.nd:2183";
         String kafkaZk = "192168-205213:2181,192168-205213:2182,192168-205213:2183";
         KafkaSpoutTestTopology kafkaSpoutTestTopology = new KafkaSpoutTestTopology(kafkaZk);
         config.put(Config.TOPOLOGY_TRIDENT_BATCH_EMIT_INTERVAL_MILLIS, 2000);
