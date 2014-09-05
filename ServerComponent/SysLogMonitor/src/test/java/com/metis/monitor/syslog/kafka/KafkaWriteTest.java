@@ -133,14 +133,56 @@ public class KafkaWriteTest {
     }
 
     private String buildOriginalSysLog() throws UnsupportedEncodingException {
-        int rndNum = random.nextInt(5);
+/*        int rndNum = random.nextInt(5);
         String result = String.format("%d\t%d\t%s\t%s\t%s",
                 appId[rndNum],
                 logLevel[rndNum],
                 logMessage[rndNum],
                 logCallStack[rndNum],
                 dateFormat.format(new Date()));
-        return URLEncoder.encode(result, "UTF-8");
+        return URLEncoder.encode(result, "UTF-8");*/
+        return "1%091%09%E8%BF%99%E6%98%AF%E4%B8%80%E4%B8%AA%E4%B8%AD%E6%96%87%E7%9A%84DEBUG%E6%B6%88%E6%81%AF%09%22%7B%22%22AbsolutePath%22%22%3Aufdfll%2C%22%22ReferrerUrl%22%22%3Anffull%2C%22%22QueryData%22%22%3Anull%2C%22%22FormData%22%22%3Anll%2C%22%22User%22%22%3Anull%2C%22%22ExData%22%22%3Anull%7D%22%092014%2F8%2F25+18%3A24%3A17";
+    }
+
+
+    @Test
+    public void writeVisitLogToKafka()  throws InterruptedException, UnsupportedEncodingException {
+        long events = 3000;
+        Properties props = new Properties();
+        props.put("metadata.broker.list", "192168-072166:9091,192168-072166:9092,192168-072166:9093");
+        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("partitioner.class", "com.metis.monitor.syslog.kafka.SimplePartitioner");
+        props.put("request.required.acks", "1");
+
+        ProducerConfig config = new ProducerConfig(props);
+        Producer<String, String> producer = new Producer<String, String>(config);
+        List<KeyedMessage<String, String>> dataList = new ArrayList<KeyedMessage<String, String>>();
+
+        for(long event = 0; event < events; event++){
+            String message = buildPageVisit();
+            KeyedMessage<String, String> data = new KeyedMessage<String, String>("page_visit", message);
+            producer.send(data);
+            //dataList.add(data);
+            //每发送一笔记录停止一下
+            Thread.sleep(500);
+            System.out.println("Write Event:" + event);
+        }
+        //producer.send(dataList);
+        System.out.println("Write Over!");
+        producer.close();
+    }
+
+    private String buildPageVisit() throws UnsupportedEncodingException {
+        int rndNum = random.nextInt(5);
+        String result = String.format("auc\t%d\t%d\t%d\t35124567\t%s\t%s\t%s\t%s",
+                userId[rndNum],
+                appId[rndNum],
+                logLevel[rndNum],
+                logMessage[rndNum],
+                logCallStack[rndNum],
+                logMessage[rndNum],
+                dateFormat.format(new Date()));
+        return result;
     }
 
     /**

@@ -136,7 +136,9 @@ public class RedisClient {
         } catch (JedisConnectionException e) {
             writeStatus = -1;
             if(logger.isErrorEnabled()) {
-                logger.error("redis master connection reset ! please check it , {} second after reconnect !", delayRetry);
+                logger.error("redis master connection reset ! please check it , " +
+                        String.valueOf(delayRetry) + " second after reconnect !",
+                        e);
             }
         }
     }
@@ -230,7 +232,9 @@ public class RedisClient {
                         sleep(delayRetry);
                     } catch (JedisConnectionException e) {
                         if(logger.isErrorEnabled()) {
-                            logger.error("redis db connection reset ! please check it , {} second after reconnect !", delayRetry);
+                            logger.error("redis db connection reset ! please check it , " +
+                                    delayRetry + " second after reconnect !",
+                                    e);
                         }
                         sleep(delayRetry);
                     }
@@ -396,7 +400,9 @@ public class RedisClient {
                     } catch (JedisConnectionException e) {
                         writeStatus = -1;
                         if (logger.isErrorEnabled()) {
-                            logger.error("redis db connection reset ! please check it , {} second after reconnect !", delayRetry);
+                            logger.error("redis db connection reset ! please check it , " +
+                                    delayRetry + " second after reconnect !",
+                                    e);
                         }
                         sleep(delayRetry);
                     }
