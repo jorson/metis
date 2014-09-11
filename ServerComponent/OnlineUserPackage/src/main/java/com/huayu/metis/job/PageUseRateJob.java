@@ -217,7 +217,7 @@ public class PageUseRateJob extends BasicJob {
         //设置计算访问频率的作业的输入和输出
         SequenceFileInputFormat.addInputPath(rateJob, tmpOutputPath);
         CustomDbOutputFormat.setOutput(rateJob, "visit_page_num_trends",
-                "StartDate", "EndDate", "PeriodType", "AppId", "TerminalCode", "PageNum", "TrendsValue");
+                "StartDate", "EndDate", "PeriodType", "AppId", "TerminalCode", "PageNum", "TrendsValue", "TrendsType");
         //开始执行
         JobControl control = new JobControl("user.user.page.rate");
         control.addJob(ctrlUseJob);

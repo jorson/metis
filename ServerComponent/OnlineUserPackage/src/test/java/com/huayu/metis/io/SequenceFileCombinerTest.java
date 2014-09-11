@@ -154,4 +154,31 @@ public class SequenceFileCombinerTest {
         }
         //SequenceFileCombiner.combineFile(conf, new List<URI>(srcFiles, targetFile, VisitLogEntry.class);
     }
+
+
+    @Test
+    public void readMonthCombineFileTest() throws URISyntaxException, IOException {
+        Configuration conf = new Configuration();
+        conf.set("fs.default.name", "hdfs://192168-072166:10000");
+
+        //URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/month/20147/visit-log.seq");
+        URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/daily/20140826/visit-log.seq");
+
+        FileSystem fs = FileSystem.get(conf);
+        Path targetPath = new Path(targetFileUri);
+        if(!fs.exists(targetPath)) {
+            System.out.println("file not exists!");
+            return;
+        }
+
+        SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+                SequenceFile.Reader.file(targetPath));
+
+        LongWritable key = new LongWritable(0L);
+        VisitLogEntry value = new VisitLogEntry();
+
+        while(reader.next(key, value)) {
+            System.out.println(String.valueOf(key.get()) + ";" + value.toString());
+        }
+    }
 }

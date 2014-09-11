@@ -61,9 +61,9 @@ public class SequenceFileCombiner {
             LongWritable key = new LongWritable(0);
             Text value = new Text();
 
-            do{
-                counter++;
+            while (reader.next(key, value)) {
                 writeKey.set(counter);
+                ++counter;
 
                 try{
                     TEntry entry = valueCls.newInstance();
@@ -72,7 +72,7 @@ public class SequenceFileCombiner {
                 } catch(Exception e){
                     continue;
                 }
-            } while(reader.next(key, value));
+            }
             //关闭Reader
             IOUtils.closeStream(reader);
         }
@@ -118,16 +118,16 @@ public class SequenceFileCombiner {
             LongWritable key = new LongWritable(0);
             TEntry value = valueCls.newInstance();
 
-            do{
-                counter++;
+            while(reader.next(key, value)) {
                 writeKey.set(counter);
+                ++counter;
 
                 try{
                     writer.append(writeKey, value);
                 } catch(Exception e){
                     continue;
                 }
-            } while(reader.next(key, value));
+            }
             //关闭Reader
             IOUtils.closeStream(reader);
         }

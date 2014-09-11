@@ -43,4 +43,7 @@
             <version>2.11.2</version>
         </dependency>
     </dependencies>
+    <build>
+        <finalName>meitis.flume.plugins</finalName>
+    </build>
 </project>

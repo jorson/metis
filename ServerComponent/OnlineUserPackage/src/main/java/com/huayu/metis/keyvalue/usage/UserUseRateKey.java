@@ -132,6 +132,7 @@ public class UserUseRateKey implements WritableComparable<UserUseRateKey>, DBWri
         statement.setInt(4, this.appId.get());
         statement.setInt(5, this.terminalCode.get());
         statement.setInt(6, this.normItemKey.get());
+        statement.setInt(8, 0);//TrendsType的默认值，目前只有这一种Type
     }
 
     @Override
