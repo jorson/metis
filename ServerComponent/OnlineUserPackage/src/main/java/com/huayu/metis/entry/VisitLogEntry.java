@@ -42,7 +42,7 @@ public class VisitLogEntry extends BaseLogEntry {
         this.userId = Integer.parseInt(values[1]);
         this.appId = Integer.parseInt(values[2]);
         this.terminalCode = Integer.parseInt(values[3]);
-        this.ipAddress = Integer.parseInt(values[4]);
+        this.ipAddress = Long.parseLong(values[4]);
         this.referPage = new Text(values[5]);
         this.visitPage = new Text(values[6]);
         this.visitPageParam = new Text(values[7]);

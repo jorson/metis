@@ -74,10 +74,21 @@ public class PageVisitKey implements WritableComparable<PageVisitKey>, DBWritabl
 
     @Override
     public int hashCode() {
-        int result = 1, prim = 99;
-        result = prim + appId.get() + terminalCode.get() + visitUrl.hashCode();
-        return result;
+        long result = startDate.get();
+        result = 31 * result + endDate.get();
+        result = 31 * result + appId.get();
+        result = 31 * result + terminalCode.get();
+        result = 31 * result + periodType.get();
+        result = 31 * result + visitUrl.toString().hashCode();
+        return Long.valueOf(result).intValue();
     }
+
+//    @Override
+//    public int hashCode() {
+//        int result = 1, prim = 99;
+//        result = prim + appId.get() + terminalCode.get() + visitUrl.hashCode();
+//        return result;
+//    }
 
     @Override
     public String toString() {

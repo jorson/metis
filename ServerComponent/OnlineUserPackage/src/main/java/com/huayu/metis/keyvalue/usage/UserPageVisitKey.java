@@ -61,21 +61,31 @@ public class UserPageVisitKey implements WritableComparable<UserPageVisitKey>, D
         userId.readFields(dataInput);
     }
 
+
+
     @Override
     public int hashCode() {
-        int result = 1, prim = 77;
-        long uId = userId.get();
-        while(uId > Integer.MAX_VALUE){
-            uId = uId - Integer.MAX_VALUE;
-        }
-        long sId = statDate.get();
-        while (sId > Integer.MAX_VALUE) {
-            sId = sId - Integer.MAX_VALUE;
-        }
-
-        result = prim + appId.get() + terminalCode.get() + (int)uId + (int)sId;
-        return result;
+        long result = statDate.get();
+        result = 31 * result + appId.get();
+        result = 31 * result + terminalCode.get();
+        result = 31 * result + userId.get();
+        return Long.valueOf(result).intValue();
     }
+//    @Override
+//    public int hashCode() {
+//        int result = 1, prim = 77;
+//        long uId = userId.get();
+//        while(uId > Integer.MAX_VALUE){
+//            uId = uId - Integer.MAX_VALUE;
+//        }
+//        long sId = statDate.get();
+//        while (sId > Integer.MAX_VALUE) {
+//            sId = sId - Integer.MAX_VALUE;
+//        }
+//
+//        result = prim + appId.get() + terminalCode.get() + (int)uId + (int)sId;
+//        return result;
+//    }
 
     @Override
     public String toString() {

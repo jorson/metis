@@ -70,14 +70,24 @@ public class UserUseKey implements WritableComparable<UserUseKey> {
 
     @Override
     public int hashCode() {
-        int result = 1, prim = 88;
-        long uId = userId.get();
-        while(uId > Integer.MAX_VALUE){
-            uId = uId - Integer.MAX_VALUE;
-        }
-        result = prim + appId.get() + terminalCode.get() + (int)uId + periodType.get();
-        return result;
+        long result = startDate.get();
+        result = 31 * result + endDate.get();
+        result = 31 * result + periodType.get();
+        result = 31 * result + appId.get();
+        result = 31 * result + terminalCode.get();
+        result = 31 * result + userId.get();
+        return Long.valueOf(result).intValue();
     }
+//    @Override
+//    public int hashCode() {
+//        int result = 1, prim = 88;
+//        long uId = userId.get();
+//        while(uId > Integer.MAX_VALUE){
+//            uId = uId - Integer.MAX_VALUE;
+//        }
+//        result = prim + appId.get() + terminalCode.get() + (int)uId + periodType.get();
+//        return result;
+//    }
 
     @Override
     public String toString() {

@@ -71,7 +71,7 @@ public class PageVisitJob extends BasicJob {
             FileSystem fs = FileSystem.get(conf);
             DBConfiguration.configureDB(conf, targetDriver, targetConnect, targetUser, targetPassword);
 
-            while (start.before(end)){
+            while (start.before(end)) {
                 //执行当天的任务
                 executeJob(conf, fs, "day", start);
                 //向前推进一天

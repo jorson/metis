@@ -83,10 +83,21 @@ public class UserUseRateKey implements WritableComparable<UserUseRateKey>, DBWri
 
     @Override
     public int hashCode() {
-        int result = 1, prim = 75;
-        result = prim + appId.get() + terminalCode.get() + normItemKey.get() + periodType.get();
-        return result;
+        long result = startDate.get();
+        result = 31 * result + endDate.get();
+        result = 31 * result + periodType.get();
+        result = 31 * result + appId.get();
+        result = 31 * result + terminalCode.get();
+        result = 31 * result + normItemKey.get();
+        return Long.valueOf(result).intValue();
     }
+
+    //    @Override
+//    public int hashCode() {
+//        int result = 1, prim = 75;
+//        result = prim + appId.get() + terminalCode.get() + normItemKey.get() + periodType.get();
+//        return result;
+//    }
 
     @Override
     public String toString() {

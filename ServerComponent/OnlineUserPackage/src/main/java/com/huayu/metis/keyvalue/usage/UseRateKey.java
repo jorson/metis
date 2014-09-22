@@ -36,6 +36,15 @@ public class UseRateKey implements WritableComparable<UseRateKey> {
     }
 
     @Override
+    public int hashCode() {
+        long result = visitDate.get();
+        result = 31 * result + appId.get();
+        result = 31 * result + terminalCode.get();
+        result = 31 * result + normItemKey.get();
+        return Long.valueOf(result).intValue();
+    }
+
+    @Override
     public int compareTo(UseRateKey o) {
         return 0;
     }

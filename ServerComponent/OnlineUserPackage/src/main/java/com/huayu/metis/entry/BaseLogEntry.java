@@ -1,5 +1,6 @@
 package com.huayu.metis.entry;
 
+import com.huayu.metis.mr.example.WordCount;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -19,7 +20,7 @@ public abstract class BaseLogEntry implements Writable {
     protected Text ucCode;
     protected int userId = 0;
     protected int appId = 0;
-    protected int ipAddress = 0;
+    protected long ipAddress = 0;
     protected int terminalCode = 1001;
 
     protected final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -33,7 +34,7 @@ public abstract class BaseLogEntry implements Writable {
         ucCode.write(out);
         out.writeInt(userId);
         out.writeInt(appId);
-        out.writeInt(ipAddress);
+        out.writeLong(ipAddress);
         out.writeInt(terminalCode);
     }
 
@@ -42,7 +43,7 @@ public abstract class BaseLogEntry implements Writable {
         ucCode.readFields(in);
         userId = in.readInt();
         appId = in.readInt();
-        ipAddress = in.readInt();
+        ipAddress = in.readLong();
         terminalCode = in.readInt();
     }
 
@@ -57,7 +58,7 @@ public abstract class BaseLogEntry implements Writable {
         int result = 1;
 
         return result + prim + this.ucCode.hashCode()
-                + this.userId + this.appId + this.ipAddress + this.terminalCode;
+                + this.userId + this.appId + (int)(this.ipAddress % Integer.MAX_VALUE) + this.terminalCode;
     }
 
     public abstract void parse(String valueString) throws ParseException;
@@ -74,7 +75,7 @@ public abstract class BaseLogEntry implements Writable {
         return appId;
     }
 
-    public int getIpAddress() {
+    public long getIpAddress() {
         return ipAddress;
     }
 

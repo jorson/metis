@@ -39,7 +39,7 @@ public class RegisterLogEntry extends BaseLogEntry {
         this.appId = Integer.parseInt(values[2]);
         this.registerMode = Integer.parseInt(values[3]);
         this.terminalCode = Integer.parseInt(values[4]);
-        this.ipAddress = Integer.parseInt(values[5]);
+        this.ipAddress = Long.parseLong(values[5]);
         //转换注册日期
         Date regDate = sdf.parse(values[6]);
         this.registerTime = regDate.getTime();
