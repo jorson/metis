@@ -49,7 +49,8 @@ public class PageVisitKey implements WritableComparable<PageVisitKey>, DBWritabl
         compare = terminalCode.compareTo(that.terminalCode);
         if(compare != 0)
             return compare;
-        return this.visitUrl.toString().equalsIgnoreCase(that.visitUrl.toString()) ? 0 : 1;
+        //return this.visitUrl.toString().equalsIgnoreCase(that.visitUrl.toString()) ? 0 : 1;
+        return this.visitUrl.toString().compareTo(that.visitUrl.toString());
     }
 
     @Override
@@ -83,7 +84,9 @@ public class PageVisitKey implements WritableComparable<PageVisitKey>, DBWritabl
         return Long.valueOf(result).intValue();
     }
 
-//    @Override
+
+
+    //    @Override
 //    public int hashCode() {
 //        int result = 1, prim = 99;
 //        result = prim + appId.get() + terminalCode.get() + visitUrl.hashCode();
