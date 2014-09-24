@@ -32,19 +32,17 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
     @Override
     public SysLogType handle(SysLogType entry) {
         if("".equals(entry.getFeatureCode()) || entry.getFeatureCode() == null) {
-            return entry;
+           entry.generateFeatureCode();
         }
 
         SysLogType item;
         synchronized (SysLogType.class) {
             item = findLogType(entry.getFeatureCode());
             if(item == null) {
-                synchronized (SysLogType.class) {
-                    //创建一个新的LogTypeCode
-                    entry.setLogTypeCode(UUID.randomUUID().toString().toUpperCase());
-                    addLogType(entry);
+                //创建一个新的LogTypeCode
+                entry.setLogTypeCode(UUID.randomUUID().toString().toUpperCase());
+                addLogType(entry);
                     return entry;
-                }
             } else {
                 return item;
             }
@@ -123,6 +121,9 @@ public class SysLogTypeMissing implements SysLogTypeManager.SysLogTypeMissingHan
             if(resultSet.next()) {
                 Integer id = resultSet.getInt(1);
                 entry.setLogId(id);
+                if(id == 0) {
+                    logger.info("SysLogMissing", "Insert LogType Duplicate" + entry.getFeatureCode());
+                }
             }
         } catch (SQLException ex) {
             if(logger.isErrorEnabled()) {

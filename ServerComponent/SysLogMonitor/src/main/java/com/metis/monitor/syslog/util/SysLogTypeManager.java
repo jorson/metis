@@ -53,6 +53,9 @@ public class SysLogTypeManager {
                 return item.getLogId();
             }
         } else {
+            if("0".equals(result)) {
+                logger.info("SysLogTypeManager", "LogType is 0:" + entry.getFeatureCode());
+            }
             return Integer.parseInt(result);
         }
     }
