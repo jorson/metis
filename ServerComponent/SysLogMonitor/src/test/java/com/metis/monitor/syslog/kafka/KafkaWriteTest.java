@@ -37,7 +37,7 @@ public class KafkaWriteTest {
     private static Random random = new Random();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    @Test
+/*    @Test
     public void writeVisitLogToKafka()  throws InterruptedException, UnsupportedEncodingException {
         long events = 3000;
         Properties props = new Properties();
@@ -52,7 +52,7 @@ public class KafkaWriteTest {
 
         for(long event = 0; event < events; event++){
             String message = buildPageVisit();
-            KeyedMessage<String, String> data = new KeyedMessage<String, String>("sys_log", message);
+            KeyedMessage<String, String> data = new KeyedMessage<String, String>("page_visit", message);
             producer.send(data);
             //dataList.add(data);
             //每发送一笔记录停止一下
@@ -62,7 +62,7 @@ public class KafkaWriteTest {
         //producer.send(dataList);
         System.out.println("Write Over!");
         producer.close();
-    }
+    }*/
 
     @Test
     public void writeToKafkaThread() throws InterruptedException, UnsupportedEncodingException {
@@ -149,7 +149,7 @@ public class KafkaWriteTest {
     public void writeVisitLogToKafka()  throws InterruptedException, UnsupportedEncodingException {
         long events = 3000;
         Properties props = new Properties();
-        props.put("metadata.broker.list", "192168-072166:9091,192168-072166:9092,192168-072166:9093");
+        props.put("metadata.broker.list", "192168-205213:9091,192168-205213:9092,192168-205213:9093");
         props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("partitioner.class", "com.metis.monitor.syslog.kafka.SimplePartitioner");
         props.put("request.required.acks", "1");
@@ -189,17 +189,4 @@ public class KafkaWriteTest {
      * 将原始输入字符串分解,并转换为实体
      * 原始字符串格式: [UcCode]\t[UserId]\t[AppId]\t[TerminalCode]\t[IpAddress]\t[ReferPage]\t[visitPage]\t[visitPageParam]\t[VisitTime]
      */
-
-    private String buildPageVisit() throws UnsupportedEncodingException {
-        int rndNum = random.nextInt(5);
-        String result = String.format("auc\t%d\t%d\t%d\t35124567\t%s\t%s\t%s\t%s",
-                userId[rndNum],
-                appId[rndNum],
-                logLevel[rndNum],
-                logMessage[rndNum],
-                logCallStack[rndNum],
-                logMessage[rndNum],
-                dateFormat.format(new Date()));
-        return result;
-    }
 }

@@ -24,6 +24,7 @@ public class RedisClient {
     private static volatile RedisClient instance;
 
     private int defaultTimeout = 5000;
+    private final int DEFAULT_KEY_EXPIRE = 30*60*1000;
 
     private JedisPool masterPool;
     private String masterHost = "127.0.0.1";
@@ -258,7 +259,9 @@ public class RedisClient {
         Object actual = master(new Action() {
             @Override
             public Object execute(Jedis jedis) {
-                return jedis.set(key, value);
+                String result = jedis.set(key, value);
+                jedis.expire(key, DEFAULT_KEY_EXPIRE);
+                return result;
             }
         });
         return actual != null ? actual.toString() : null;
@@ -268,7 +271,9 @@ public class RedisClient {
         Object actual = master(new Action() {
             @Override
             public Object execute(Jedis jedis) {
-                return jedis.hset(key, field, value);
+                Long result = jedis.hset(key, field, value);
+                jedis.expire(key, DEFAULT_KEY_EXPIRE);
+                return result;
             }
         });
         return actual != null ? Long.valueOf(actual.toString()) : null;

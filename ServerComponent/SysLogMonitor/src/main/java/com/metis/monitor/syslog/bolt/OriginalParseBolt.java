@@ -43,7 +43,8 @@ public class OriginalParseBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         //获取从KafkaSpout中传递过来的数据
-        String originalString = tuple.getValue(0).toString();
+        //String originalString = tuple.getValue(0).toString();
+        String originalString = tuple.getValues().get(0).toString();
         try{
             originalString = URLDecoder.decode(originalString, "UTF-8");
         } catch(Exception ex) {

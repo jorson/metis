@@ -51,9 +51,12 @@ public class C3P0Utils {
         comboPooledDataSource.setPassword(password);
         comboPooledDataSource.setJdbcUrl(url);
         //C3P0的可选配置
-        comboPooledDataSource.setMinPoolSize(5);
-        comboPooledDataSource.setMaxPoolSize(20);
-        comboPooledDataSource.setMaxIdleTime(15);
+//        comboPooledDataSource.setMinPoolSize(5);
+//        comboPooledDataSource.setMaxPoolSize(20);
+//        comboPooledDataSource.setMaxIdleTime(15);
+        comboPooledDataSource.setMinPoolSize(30);
+        comboPooledDataSource.setMaxPoolSize(120);
+        comboPooledDataSource.setMaxIdleTime(1800);
         comboPooledDataSource.setUnreturnedConnectionTimeout(15);
 
         hasInit = true;

@@ -94,10 +94,10 @@ public class SequenceFileCombinerTest {
     @Test
     public void combineFileTest() throws URISyntaxException, IOException {
         Configuration conf = new Configuration();
-        conf.set("fs.default.name", "hdfs://Jorson-Linux:10000");
+        conf.set("fs.default.name", "hdfs://192168-072166:10000");
 
-        URI srcPath = new URI("hdfs://Jorson-Linux:10000/orignal/1/api/14-07-16");
-        URI targetFileUri = new URI("hdfs://Jorson-Linux:10000/orignal/1/api/combine.seq");
+        URI srcPath = new URI("hdfs://192168-072166:10000/original/20140915/visit/part.1410778420112.log");
+        URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/daily/20140915/combine_test.seq");
 
         //先删除掉已经存在的文件
         FileSystem fs = FileSystem.get(conf);
@@ -106,7 +106,7 @@ public class SequenceFileCombinerTest {
             fs.delete(targetPath, false);
         }
 
-        SequenceFileCombiner.combineFile(conf, srcPath, targetFileUri, RegisterLogEntry.class);
+        SequenceFileCombiner.combineFile(conf, srcPath, targetFileUri, VisitLogEntry.class);
     }
 
     @Test
@@ -162,7 +162,9 @@ public class SequenceFileCombinerTest {
         conf.set("fs.default.name", "hdfs://192168-072166:10000");
 
         //URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/month/20147/visit-log.seq");
-        URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/daily/20140826/visit-log.seq");
+        URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/daily/20140915/visit-log.seq");
+        //URI targetFileUri = new URI("hdfs://192168-072166:10000/combine/daily/20140915/combine_test.seq");
+
 
         FileSystem fs = FileSystem.get(conf);
         Path targetPath = new Path(targetFileUri);
@@ -180,5 +182,6 @@ public class SequenceFileCombinerTest {
         while(reader.next(key, value)) {
             System.out.println(String.valueOf(key.get()) + ";" + value.toString());
         }
+        System.out.println(String.valueOf("end"));
     }
 }

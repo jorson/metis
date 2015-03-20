@@ -10,6 +10,7 @@ import com.metis.monitor.syslog.util.SysLogTypeMissing;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
@@ -19,20 +20,39 @@ import static org.mockito.Mockito.*;
  */
 public class BoltTest {
 
+    private static backtype.storm.Config config;
+
     @BeforeClass
     public static void setup() throws Exception {
-        String configPath = "E:\\CodeInGit\\metis_github\\ServerComponent\\SysLogMonitor\\src\\test\\resources\\monitor.syslog.properties";
-        SysLogConfig.getInstance().loadConfig(configPath);
+        String configPath = "D:\\Documents\\metis_github\\ServerComponent\\SysLogMonitor\\src\\test\\resources\\monitor.syslog.properties";
+        config = SysLogConfig.getInstance().loadConfig(configPath);
     }
 
     @Test
-    public void TransportBoltTest() {
+    public void OriginalBoltTest() {
+        Tuple originalInput = MockTupleHelper.mockOriginalInput();
+        OriginalParseBolt bolt = new OriginalParseBolt();
+
+        Map conf = mock(Map.class);
+        TopologyContext context = mock(TopologyContext.class);
+        OutputCollector collector = mock(OutputCollector.class);
+        bolt.prepare(conf, context, collector);
+
+        //execute
+        bolt.execute(originalInput);
+
+        //verify
+        verify(collector).ack(originalInput);
+    }
+
+    @Test
+    public void TransportBoltTest() throws ParseException {
         Tuple originalSysLog = MockTupleHelper.mockOriginalSysLogTuple();
         TransportBolt bolt = new TransportBolt();
         Map conf = mock(Map.class);
         TopologyContext context = mock(TopologyContext.class);
         OutputCollector collector = mock(OutputCollector.class);
-        bolt.prepare(conf, context, collector);
+        bolt.prepare(config, context, collector);
 
         //execute
         bolt.execute(originalSysLog);

@@ -21,10 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by Administrator on 14-8-6.
@@ -43,6 +40,7 @@ public class BatchingBolt extends BaseRichBolt {
     private SimpleDateFormat minCycleFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:00");
 
     private ExecutorService executorService = null;
+
     private Cloner cloner;
 
     @Override
@@ -58,6 +56,7 @@ public class BatchingBolt extends BaseRichBolt {
         C3P0Utils.getInstance().init(driver, url, user, password);
         //初始化Executor
         executorService = Executors.newFixedThreadPool(10);
+
         cloner = new Cloner();
 /*        //设置Connection
         try {
